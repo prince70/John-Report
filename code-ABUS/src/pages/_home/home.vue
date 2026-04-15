@@ -385,8 +385,9 @@ export default {
           this.pieInstance = echarts.init(this.$refs.pieChart)
         }
         if (this.pieInstance) {
+          const pieColors = ['#DBEAFE', '#003A6B', '#005B9F', '#007CD4', '#3D9EF9', '#7ABEFD', '#B8DFFF']
           const pieOption = {
-            color: ['#DBEAFE', '#003A6B', '#005B9F', '#007CD4', '#3D9EF9', '#7ABEFD', '#B8DFFF'],
+            color: pieColors,
             title: { 
               text: '本月完成情况', 
               left: 'center',
@@ -406,7 +407,19 @@ export default {
                 avoidLabelOverlap: false,
                 itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
                 label: { show: true, formatter: '{b}: {c}' },
-                data: this.pieData
+                data: this.pieData.map((item, index) => ({
+                  ...item,
+                  itemStyle: {
+                    color: pieColors[index % pieColors.length]
+                  },
+                  emphasis: {
+                    scale: true,
+                    scaleSize: 6,
+                    itemStyle: {
+                      color: pieColors[index % pieColors.length]
+                    }
+                  }
+                }))
               }
             ]
           }
@@ -451,7 +464,7 @@ export default {
                 },
                 emphasis: {
                   itemStyle: {
-                    color: '#408FFF'
+                    color: '#DBEAFE'
                   }
                 },
                 barWidth: '40%'
@@ -573,10 +586,19 @@ export default {
                 labelLine: {
                   show: true
                 },
+                    scale: false,
                 data: this.orderCompletionData.map(item => ({
                   ...item,
                   itemStyle: {
                     color: item.name === '已完成' ? '#003A6B' : '#DBEAFE'
+                  },
+                  itemStyle: {
+                    color: item.name === '已完成' ? '#003A6B' : '#DBEAFE'
+                  },
+                  emphasis: {
+                    itemStyle: {
+                      color: item.name === '已完成' ? '#003A6B' : '#DBEAFE'
+                    }
                   }
                 }))
               }
@@ -617,7 +639,7 @@ export default {
     // 获取完成数量数据
     async fetchFinishedQty() {
       try {
-        const res = await axios.get('/finished_qty')
+        const res = await axios.get('/api/finished_qty')
         const data = (res && res.data && res.data.data) ? res.data.data : null
         if (!data) return
         
