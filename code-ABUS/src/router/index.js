@@ -15,6 +15,7 @@ import ReportSw from '../pages/John/gongxu.vue';
 import ReportTemp from '../pages/John/quanliucheng.vue';
 import CisaInventory from '../pages/John/cisaInventory.vue';
 import People from '../pages/HR/people.vue';
+import LockBodyProcessStats from '../pages/John/LockBodyProcessStats.vue';
 
 Vue.use(VueRouter);
 
@@ -110,6 +111,12 @@ const routes = [
     path: '/people',
     name: 'People',
     component: People,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/lockBodyProcessStats',
+    name: 'LockBodyProcessStats',
+    component: LockBodyProcessStats,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

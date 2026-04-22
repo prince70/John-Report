@@ -172,6 +172,11 @@ export default {
                 name: '装嵌未来8周需求明细',
                 icon: require('../pages/photo/data.png'),
               path: '/assemblyFuture8Weeks'
+            },
+            {
+              name: '锁体C分区域库存计算',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockBodyProcessStats'
             }
           ]
         }
@@ -206,6 +211,11 @@ export default {
               name: '装嵌未来8周需求明细',
               icon: require('../pages/photo/data.png'),
               path: '/assemblyFuture8Weeks'
+            },
+            {
+              name: '锁体C分区域库存计算',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockBodyProcessStats'
             }
           ]
         }
