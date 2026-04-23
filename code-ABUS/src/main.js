@@ -13,6 +13,12 @@ Vue.use(Vuex);
 
 Vue.config.productionTip = false;
 
+// 关闭页面时自动清除登录缓存，退出账号（保留"记住账号"的用户名）
+window.addEventListener('beforeunload', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
+});
+
 new Vue({
   router,
   store,

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir D:Codenew_report_john /s /b)",
+      "Bash(find code-ABUS/src -name login* -o -name Login* -o -name auth* -o -name Auth*)",
+      "Bash(find code-ABUS/src/pages -name *.vue)"
+    ]
+  }
+}
