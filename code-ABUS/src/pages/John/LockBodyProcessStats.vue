@@ -54,39 +54,61 @@
 
       <div v-if="showAllDataSummary && allDataSummary && allFilteredData.length > 0" class="el-card is-always-shadow mb-4 summary-form">
         <div class="el-card__body">
-          <div class="summary-form-title">汇总</div>
-          <table class="summary-form-table">
-            <tr>
-              <td class="summary-item">
-                <span class="summary-label">流转_完成量</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.流转_完成量) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">自动机_完成量</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.自动机_完成量) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">自动机_可用库存</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.自动机_可用库存) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">加工线_完成量</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.加工线_完成量) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">加工线_可用库存</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.加工线_可用库存) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">拣锁体_完成量</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.拣锁体_完成量) }}</span>
-              </td>
-              <td class="summary-item">
-                <span class="summary-label">拣锁体_可用库存</span>
-                <span class="summary-value">{{ formatNumber(allDataSummary.拣锁体_可用库存) }}</span>
-              </td>
-            </tr>
-          </table>
+          <div class="summary-header">
+            <div class="summary-form-title">汇总</div>
+            <div class="summary-inventory-total">
+              <span class="total-label">可用库存总和：</span>
+              <span class="total-value">{{ formatNumber(totalAvailableInventory) }}&nbsp;</span>
+              <el-tooltip content="可用库存总和 + 后工序-拣锁体的流转量 = 流转量" placement="top">
+               <i class="el-icon-info tip-icon"></i>
+               </el-tooltip>
+            </div>
+          </div>
+          <el-table :data="[allDataSummary]" border stripe size="small" :show-header="true">
+            <el-table-column label="流转" align="center">
+              <el-table-column prop="流转_完成量" label="完成量" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.流转_完成量) }}</span>
+                </template>
+              </el-table-column>
+            </el-table-column>
+            <el-table-column label="自动机" align="center">
+              <el-table-column prop="自动机_完成量" label="完成量" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.自动机_完成量) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="自动机_可用库存" label="可用库存" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.自动机_可用库存) }}</span>
+                </template>
+              </el-table-column>
+            </el-table-column>
+            <el-table-column label="加工线" align="center">
+              <el-table-column prop="加工线_完成量" label="完成量" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.加工线_完成量) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="加工线_可用库存" label="可用库存" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.加工线_可用库存) }}</span>
+                </template>
+              </el-table-column>
+            </el-table-column>
+            <el-table-column label="后工序-拣锁体" align="center">
+              <el-table-column prop="拣锁体_完成量" label="完成量" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.拣锁体_完成量) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="拣锁体_可用库存" label="可用库存" min-width="100" align="right">
+                <template #default="scope">
+                  <span>{{ formatNumber(scope.row.拣锁体_可用库存) }}</span>
+                </template>
+              </el-table-column>
+            </el-table-column>
+          </el-table>
         </div>
       </div>
 
@@ -110,6 +132,12 @@
             <el-table-column type="index" label="序号" width="60" align="center" />
             
             <el-table-column prop="订单批号" label="订单批号" min-width="150" show-overflow-tooltip />
+            
+            <el-table-column prop="确定交期" label="确定交期" min-width="120" align="center" show-overflow-tooltip>
+              <template #default="scope">
+                <span>{{ formatDate(scope.row.确定交期) }}</span>
+              </template>
+            </el-table-column>
             
             <el-table-column prop="料品名称" label="料品名称" min-width="180" show-overflow-tooltip />
             
@@ -155,7 +183,7 @@
               </el-table-column>
             </el-table-column>
             
-            <el-table-column label="拣锁体" align="center">
+            <el-table-column label="后工序-拣锁体" align="center">
               <el-table-column prop="拣锁体_完成量" label="完成量" min-width="100" align="right" show-overflow-tooltip>
                 <template #default="scope">
                   <span>{{ formatNumber(scope.row.拣锁体_完成量) }}</span>
@@ -236,14 +264,44 @@ export default {
         拣锁体_完成量: sum(this.allFilteredData, '拣锁体_完成量'),
         拣锁体_可用库存: sum(this.allFilteredData, '拣锁体_可用库存')
       }
+    },
+    totalAvailableInventory() {
+      if (!this.allDataSummary) return 0
+      return (this.allDataSummary.自动机_可用库存 || 0) 
+           + (this.allDataSummary.加工线_可用库存 || 0) 
+           + (this.allDataSummary.拣锁体_可用库存 || 0)
     }
   },
-  methods: {
+methods: {
     formatNumber(value) {
       if (value === null || value === undefined || value === '') {
         return '-'
       }
       return Number(value).toLocaleString()
+    },
+    formatDate(value) {
+      if (!value) return '-'
+      try {
+        // 处理各种日期格式
+        let dateStr = String(value)
+        
+        // 已经是 YYYY-MM-DD 格式
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          return dateStr.replace(/-/g, '/')
+        }
+        
+        // 处理带时间的格式（如 "2026-05-01 00:00:00" 或 "2026-05-01T00:00:00"）
+        if (dateStr.includes(' ') || dateStr.includes('T')) {
+          dateStr = dateStr.split(' ')[0].split('T')[0]
+          return dateStr.replace(/-/g, '/')
+        }
+        
+        const date = new Date(value)
+        if (isNaN(date.getTime())) return String(value)
+        return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+      } catch {
+        return String(value)
+      }
     },
     initializePageData() {
       this.searchReport(false)
@@ -324,7 +382,7 @@ export default {
           sums[index] = '总计'
           return
         }
-        if (index === 1 || index === 2 || index === 3) {
+        if (index === 1 || index === 2 || index === 3 || index === 4) {
           sums[index] = ''
           return
         }
@@ -421,11 +479,36 @@ export default {
   background: #f5f7fa;
 }
 
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 .summary-form-title {
   font-size: 14px;
   font-weight: bold;
   color: #303133;
-  margin-bottom: 15px;
+}
+
+.summary-inventory-total {
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #e1f3d8;
+}
+
+.summary-inventory-total .total-label {
+  font-size: 13px;
+  color: #606266;
+  margin-right: 8px;
+}
+
+.summary-inventory-total .total-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #67c23a;
 }
 
 .summary-form-table {

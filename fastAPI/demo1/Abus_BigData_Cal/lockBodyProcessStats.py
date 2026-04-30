@@ -4,10 +4,17 @@ from typing import Optional
 import os
 import pyodbc
 import io
-from datetime import datetime
+from datetime import datetime, date
 from collections import defaultdict
 from fastapi.responses import StreamingResponse
 from fastapi_cache.decorator import cache
+
+
+def format_datetime_value(val):
+    """将 datetime/date 对象转换为字符串，否则直接返回"""
+    if isinstance(val, (datetime, date)):
+        return val.strftime('%Y-%m-%d')
+    return val if val else ""
 
 router = APIRouter()
 
@@ -37,18 +44,15 @@ def get_lock_body_data_from_db():
         cursor = conn.cursor()
         
         sql = """
-        SELECT a.工单编号, a.工单状态, a.生产车间, a.订单批号, a.料品编码, 
-               a.料品名称, a.规格型号, a.计划产量, a.实际产量, a.确定交期, 
-               a.OpExternalId, b.锁类分区 
-        FROM 派工单 a
-        LEFT JOIN [V_销售订单2] b ON a.订单批号 = b.sheet_lot
-        WHERE (
-            (a.生产车间 LIKE '锁体C%' AND a.确定交期 > GETDATE() 
-             AND (a.OpExternalId LIKE '%自动机' OR a.OpExternalId LIKE '%加工线' OR a.OpExternalId = '拣锁体') 
-             AND b.锁类分区='铝门锁')
-            OR
-            (a.生产车间='开料车间' AND a.OpExternalId='流转' AND b.锁类分区='铝门锁')
-        )
+        select a.工单编号,a.工单状态,a.生产车间,a.订单批号,a.料品编码,a.料品名称,a.规格型号,a.计划产量,a.实际产量,a.确定交期,a.OpExternalId,b.锁类分区 from 派工单 a
+  left join [V_销售订单2] b
+
+  on a.订单批号 = b.sheet_lot
+  
+  where (a.生产车间 like '锁体C%' and a.确定交期 >getdate() 
+  and (a.OpExternalId like '%自动机' or a.OpExternalId like '%加工线' or a.OpExternalId = '拣锁体') and b.锁类分区='铝门锁')
+
+  or a.生产车间='开料车间' and OpExternalId ='流转'  and b.锁类分区='铝门锁' and a.确定交期 >getdate()
         """
         
         cursor.execute(sql)
@@ -66,7 +70,7 @@ def get_lock_body_data_from_db():
                 "规格型号": row[6] if row[6] else "",
                 "计划产量": float(row[7]) if row[7] else 0,
                 "实际产量": float(row[8]) if row[8] else 0,
-                "确定交期": row[9],
+                "确定交期": format_datetime_value(row[9]),
                 "OpExternalId": row[10] if row[10] else "",
                 "锁类分区": row[11] if row[11] else ""
             })
@@ -89,6 +93,7 @@ def process_lock_body_data(raw_data, order_no=None, item_name=None, item_code=No
         "料品名称": "",
         "规格型号": "",
         "计划产量": 0,
+        "确定交期": "",
         "流转_完成量": 0,
         "自动机_完成量": 0,
         "自动机_可用库存": 0,
@@ -105,6 +110,7 @@ def process_lock_body_data(raw_data, order_no=None, item_name=None, item_code=No
         规格型号 = row["规格型号"]
         计划产量 = row["计划产量"]
         实际产量 = row["实际产量"]
+        确定交期 = row["确定交期"]
         OpExternalId = row["OpExternalId"]
         
         if not 订单批号:
@@ -120,6 +126,9 @@ def process_lock_body_data(raw_data, order_no=None, item_name=None, item_code=No
             data["规格型号"] = 规格型号
         if data["计划产量"] == 0 and 计划产量 > 0:
             data["计划产量"] = 计划产量
+        # 确定交期：如果当前为空且有值，则赋值
+        if (data["确定交期"] in ("", None) or str(data["确定交期"]).strip() == "") and 确定交期:
+            data["确定交期"] = 确定交期
         
         if OpExternalId == "流转":
             data["流转_完成量"] += 实际产量
@@ -168,6 +177,10 @@ async def get_lock_body_process_stats(
         raw_data = get_lock_body_data_from_db()
         details = process_lock_body_data(raw_data, order_no, item_name, item_code)
         
+        # 调试：打印前3条记录的确定交期
+        if details:
+            print(f"DEBUG: 前3条记录的确定交期: {[d.get('确定交期') for d in details[:3]]}")
+        
         return {
             "status": "success",
             "data": {
@@ -198,7 +211,7 @@ async def export_lock_body_process_stats(
         workbook = xlsxwriter.Workbook(excel_buffer)
         worksheet = workbook.add_worksheet('锁体C分区域库存计算')
         
-        headers = ['订单批号', '料品编码', '料品名称', '规格型号', '计划产量', 
+        headers = ['订单批号', '确定交期', '料品编码', '料品名称', '规格型号', '计划产量', 
                    '流转_完成量', '自动机_完成量', '自动机_可用库存',
                    '加工线_完成量', '加工线_可用库存', 
                    '拣锁体_完成量', '拣锁体_可用库存']
@@ -217,17 +230,18 @@ async def export_lock_body_process_stats(
         row = 1
         for item in details:
             worksheet.write(row, 0, item.get('订单批号', ''))
-            worksheet.write(row, 1, item.get('料品编码', ''))
-            worksheet.write(row, 2, item.get('料品名称', ''))
-            worksheet.write(row, 3, item.get('规格型号', ''))
-            worksheet.write(row, 4, item.get('计划产量', 0))
-            worksheet.write(row, 5, item.get('流转_完成量', 0))
-            worksheet.write(row, 6, item.get('自动机_完成量', 0))
-            worksheet.write(row, 7, item.get('自动机_可用库存', 0))
-            worksheet.write(row, 8, item.get('加工线_完成量', 0))
-            worksheet.write(row, 9, item.get('加工线_可用库存', 0))
-            worksheet.write(row, 10, item.get('拣锁体_完成量', 0))
-            worksheet.write(row, 11, item.get('拣锁体_可用库存', 0))
+            worksheet.write(row, 1, item.get('确定交期', ''))
+            worksheet.write(row, 2, item.get('料品编码', ''))
+            worksheet.write(row, 3, item.get('料品名称', ''))
+            worksheet.write(row, 4, item.get('规格型号', ''))
+            worksheet.write(row, 5, item.get('计划产量', 0))
+            worksheet.write(row, 6, item.get('流转_完成量', 0))
+            worksheet.write(row, 7, item.get('自动机_完成量', 0))
+            worksheet.write(row, 8, item.get('自动机_可用库存', 0))
+            worksheet.write(row, 9, item.get('加工线_完成量', 0))
+            worksheet.write(row, 10, item.get('加工线_可用库存', 0))
+            worksheet.write(row, 11, item.get('拣锁体_完成量', 0))
+            worksheet.write(row, 12, item.get('拣锁体_可用库存', 0))
             row += 1
         
         workbook.close()
