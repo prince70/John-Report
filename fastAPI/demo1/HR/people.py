@@ -71,6 +71,7 @@ def _query_people_data(conn):
                 AS VARCHAR)
         END AS 年龄,
         CASE WHEN married = 1 THEN '是' WHEN married = 0 THEN '否' ELSE '未登记' END AS 是否已婚,
+        ISNULL(CONVERT(VARCHAR(10), birth_date, 120), '未登记') AS 出生日期,
         CAST(in_date AS DATE) AS 入职时间,
         CASE WHEN 退休返聘 = 1 THEN '是' WHEN 退休返聘 IS NULL THEN '否' ELSE '未登记' END AS 是否退休返聘,
         ISNULL(职务, '未登记') AS 职务,

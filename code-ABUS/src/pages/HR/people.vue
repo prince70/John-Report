@@ -83,6 +83,7 @@
         <el-table-column prop="性别" label="性别" width="55" align="center" />
         <el-table-column prop="年龄" label="年龄" width="55" align="center" />
         <el-table-column prop="是否已婚" label="已婚" width="55" align="center" />
+        <el-table-column prop="出生日期" label="出生日期" width="110" align="center" />
         <el-table-column prop="入职时间" label="入职时间" width="110" align="center" />
         <el-table-column prop="部门" label="部门" width="130" align="center" />
         <el-table-column prop="职务" label="职务" width="100" align="center" />
