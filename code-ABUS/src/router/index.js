@@ -16,6 +16,8 @@ import ReportTemp from '../pages/John/quanliucheng.vue';
 import CisaInventory from '../pages/John/cisaInventory.vue';
 import People from '../pages/HR/people.vue';
 import LockBodyProcessStats from '../pages/John/LockBodyProcessStats.vue';
+import LackMaterial from '../pages/APS_Stat/lackMaterial.vue';
+import OutsourceLackMaterial from '../pages/APS_Stat/outsourceLackMaterial.vue';
 
 Vue.use(VueRouter);
 
@@ -117,6 +119,18 @@ const routes = [
     path: '/lockBodyProcessStats',
     name: 'LockBodyProcessStats',
     component: LockBodyProcessStats,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/lackMaterial',
+    name: 'LackMaterial',
+    component: LackMaterial,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/outsourceLackMaterial',
+    name: 'OutsourceLackMaterial',
+    component: OutsourceLackMaterial,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

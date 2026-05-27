@@ -28,6 +28,8 @@ from Abus_BigData_Cal.AssemblyFuture8Weeks import router as AssemblyFuture8Weeks
 from Warning.AssemblyEarly import router as AssemblyEarly
 from All_Process_Cal import allProcessWorkReport
 from Abus_BigData_Cal.lockBodyProcessStats import router as lockBodyProcessStats_router
+from Abus_BigData_Cal.lackMaterial import router as lackMaterial_router
+from Abus_BigData_Cal.outsourceLackMaterial import router as outsourceLackMaterial_router
 app = FastAPI()
 
 # 初始化缓存 使用内存缓存而不是redis缓存
@@ -70,6 +72,8 @@ app.include_router(AssemblyEarlyList)
 app.include_router(AssemblyFuture8Weeks)
 app.include_router(allProcessWorkReport.router)
 app.include_router(lockBodyProcessStats_router)
+app.include_router(lackMaterial_router)
+app.include_router(outsourceLackMaterial_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8092", "http://127.0.0.1:8092", "http://report.abushardware.com", "http://192.168.10.118:8092"], 

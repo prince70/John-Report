@@ -177,6 +177,16 @@ export default {
               name: '锁体C分区域库存计算',
               icon: require('../pages/photo/data.png'),
               path: '/lockBodyProcessStats'
+            },
+            {
+              name: '各车间欠料',
+              icon: require('../pages/photo/data.png'),
+              path: '/lackMaterial'
+            },
+            {
+              name: '外协欠料明细',
+              icon: require('../pages/photo/data.png'),
+              path: '/outsourceLackMaterial'
             }
           ]
         }
@@ -216,6 +226,16 @@ export default {
               name: '锁体C分区域库存计算',
               icon: require('../pages/photo/data.png'),
               path: '/lockBodyProcessStats'
+            },
+            {
+              name: '各车间欠料',
+              icon: require('../pages/photo/data.png'),
+              path: '/lackMaterial'
+            },
+            {
+              name: '外协欠料明细',
+              icon: require('../pages/photo/data.png'),
+              path: '/outsourceLackMaterial'
             }
           ]
         }
