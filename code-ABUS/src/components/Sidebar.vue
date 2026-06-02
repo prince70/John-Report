@@ -139,6 +139,11 @@ export default {
               name: '成本计算应用',
               icon: require('../pages/photo/data.png'),
               path: '/CostCalculation'
+            },
+            {
+              name: '工序规格码单价明细与统计',
+              icon: require('../pages/photo/data.png'),
+              path: '/processPriceStats'
             }
           ]
         },

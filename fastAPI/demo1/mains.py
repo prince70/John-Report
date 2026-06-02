@@ -21,6 +21,7 @@ from routers.gongxu import router as report_sw_router
 from routers.quanliucheng import router as report_temp_router
 from routers.cisa_inventory import router as cisa_inventory_router
 from routers.product_rules import router as product_rules_router
+from routers.processPriceStats import router as processPriceStats_router
 from HR.people import router as people_router
 from Abus_BigData_Cal import home_dashboard
 from Abus_BigData_Cal import FinishedQty
@@ -64,6 +65,7 @@ app.include_router(report_sw_router, prefix="/report_sw")
 app.include_router(report_temp_router, prefix="/report_temp")
 app.include_router(cisa_inventory_router, prefix="/cisa_inventory")
 app.include_router(product_rules_router)
+app.include_router(processPriceStats_router)
 app.include_router(people_router)
 app.include_router(home_dashboard.router)
 app.include_router(FinishedQty.router)

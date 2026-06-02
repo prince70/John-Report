@@ -18,6 +18,7 @@ import People from '../pages/HR/people.vue';
 import LockBodyProcessStats from '../pages/John/LockBodyProcessStats.vue';
 import LackMaterial from '../pages/APS_Stat/lackMaterial.vue';
 import OutsourceLackMaterial from '../pages/APS_Stat/outsourceLackMaterial.vue';
+import ProcessPriceStats from '../pages/John/processPriceStats.vue';
 
 Vue.use(VueRouter);
 
@@ -131,6 +132,12 @@ const routes = [
     path: '/outsourceLackMaterial',
     name: 'OutsourceLackMaterial',
     component: OutsourceLackMaterial,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/processPriceStats',
+    name: 'ProcessPriceStats',
+    component: ProcessPriceStats,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

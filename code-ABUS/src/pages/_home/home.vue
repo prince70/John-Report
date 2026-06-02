@@ -410,13 +410,11 @@ export default {
                 data: this.pieData.map((item, index) => ({
                   ...item,
                   itemStyle: {
-                    color: pieColors[index % pieColors.length]
+                    color: item.name === '已完成只数' ? '#003A6B' : '#DBEAFE'
                   },
                   emphasis: {
-                    scale: true,
-                    scaleSize: 6,
                     itemStyle: {
-                      color: pieColors[index % pieColors.length]
+                      color: item.name === '已完成只数' ? '#003A6B' : '#DBEAFE'
                     }
                   }
                 }))
@@ -569,7 +567,7 @@ export default {
               {
                 name: '订单情况',
                 type: 'pie',
-                radius: ['50%', '65%'],
+                radius: ['40%', '70%'],
                 center: ['50%', '50%'],
                 avoidLabelOverlap: false,
                 itemStyle: { 
@@ -589,9 +587,6 @@ export default {
                     scale: false,
                 data: this.orderCompletionData.map(item => ({
                   ...item,
-                  itemStyle: {
-                    color: item.name === '已完成' ? '#003A6B' : '#DBEAFE'
-                  },
                   itemStyle: {
                     color: item.name === '已完成' ? '#003A6B' : '#DBEAFE'
                   },

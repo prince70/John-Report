@@ -26,7 +26,7 @@ def get_db_connection():
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"数据库连接失败: {exc}")
 
-def get_data_from_db(product_series=None, product_desc=None, 外协项目1=None, start_date=None, end_date=None):
+def get_data_from_db(product_series=None, product_desc=None, 外协项目1=None, start_date=None, end_date=None, vFactory=None):
     conn = None
     try:
         conn = get_db_connection()
@@ -78,6 +78,9 @@ def get_data_from_db(product_series=None, product_desc=None, 外协项目1=None,
         if end_date:
             sql += " AND CAST(a.[确定交期] AS DATE) <= ?"
             params.append(end_date)
+        if vFactory:
+            sql += " AND a.[vFactory] = ?"
+            params.append(vFactory)
 
         sql += " ORDER BY a.LackQty DESC"
 
@@ -132,10 +135,11 @@ async def get_outsource_lack_material(
     product_desc: Optional[str] = Query(None, description="产品描述（模糊查询）"),
     外协项目1: Optional[str] = Query(None, description="外协项目1（模糊查询）"),
     start_date: Optional[str] = Query(None, description="确定交期-开始"),
-    end_date: Optional[str] = Query(None, description="确定交期-结束")
+    end_date: Optional[str] = Query(None, description="确定交期-结束"),
+    vFactory: Optional[str] = Query(None, description="车间（精确匹配）")
 ):
     try:
-        raw_data = get_data_from_db(product_series, product_desc, 外协项目1, start_date, end_date)
+        raw_data = get_data_from_db(product_series, product_desc, 外协项目1, start_date, end_date, vFactory)
 
         return {
             "status": "success",
@@ -189,6 +193,17 @@ async def get_suggestions(
             WHERE b.外协项目1 IS NOT NULL
             AND b.外协项目1 LIKE ?
             AND b.外协项目1 != ''
+            """
+            cursor.execute(sql, (f"%{q}%",))
+        elif field == "vFactory":
+            sql = """
+            SELECT DISTINCT TOP 50 a.[vFactory] AS value
+            FROM [APS_Result].[dbo].[V_JobLackMaterial7Days111] a
+            LEFT JOIN APS_SUO.dbo.外协明细数据 b ON a.ItemExternalId = b.半成品编码
+            WHERE b.外协项目1 IS NOT NULL
+            AND a.[vFactory] LIKE ?
+            AND a.[vFactory] IS NOT NULL
+            AND a.[vFactory] != ''
             """
             cursor.execute(sql, (f"%{q}%",))
         else:
