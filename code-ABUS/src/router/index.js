@@ -19,6 +19,7 @@ import LockBodyProcessStats from '../pages/John/LockBodyProcessStats.vue';
 import LackMaterial from '../pages/APS_Stat/lackMaterial.vue';
 import OutsourceLackMaterial from '../pages/APS_Stat/outsourceLackMaterial.vue';
 import ProcessPriceStats from '../pages/John/processPriceStats.vue';
+import FullProcessInventory from '../pages/APS_Stat/fullProcessInventory.vue';
 
 Vue.use(VueRouter);
 
@@ -138,6 +139,18 @@ const routes = [
     path: '/processPriceStats',
     name: 'ProcessPriceStats',
     component: ProcessPriceStats,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/CNC',
+    name: 'FullProcessInventoryCNC',
+    component: FullProcessInventory,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/DZS',
+    name: 'FullProcessInventoryDZS',
+    component: FullProcessInventory,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

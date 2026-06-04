@@ -192,6 +192,16 @@ export default {
               name: '外协欠料明细',
               icon: require('../pages/photo/data.png'),
               path: '/outsourceLackMaterial'
+            },
+            {
+              name: '全流程报工库存-CNC锁体车间',
+              icon: require('../pages/photo/data.png'),
+              path: '/fullProcessInventory/CNC'
+            },
+            {
+              name: '全流程报工库存-电子锁车间',
+              icon: require('../pages/photo/data.png'),
+              path: '/fullProcessInventory/DZS'
             }
           ]
         }
@@ -241,6 +251,16 @@ export default {
               name: '外协欠料明细',
               icon: require('../pages/photo/data.png'),
               path: '/outsourceLackMaterial'
+            },
+            {
+              name: '全流程报工库存-CNC锁体车间',
+              icon: require('../pages/photo/data.png'),
+              path: '/fullProcessInventory/CNC'
+            },
+            {
+              name: '全流程报工库存-电子锁车间',
+              icon: require('../pages/photo/data.png'),
+              path: '/fullProcessInventory/DZS'
             }
           ]
         }
