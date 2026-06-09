@@ -18,13 +18,31 @@
 
         <transition name="slide">
           <div v-if="menu.children && menu.isExpanded" class="sub-menu">
-            <div v-for="(sub, subIndex) in menu.children" :key="subIndex" 
-              v-if="!sub.hidden"
-              class="sub-item"
-              :class="{ active: activeMenu === sub.path }" @click.stop="changeMenu(sub.path)">
-              <img :src="sub.icon" class="sub-icon" />
-              <span>{{ sub.name }}</span>
-            </div>
+            <template v-for="(sub, subIndex) in menu.children">
+              <div v-if="!sub.hidden && !sub.children" :key="subIndex" 
+                class="sub-item"
+                :class="{ active: activeMenu === sub.path }" @click.stop="changeMenu(sub.path)">
+                <img :src="sub.icon" class="sub-icon" />
+                <span>{{ sub.name }}</span>
+              </div>
+              <div v-if="!sub.hidden && sub.children" :key="subIndex">
+                <div class="sub-item" :class="{ active: false }" @click.stop="toggleSubMenu(sub)">
+                  <img :src="sub.icon" class="sub-icon" />
+                  <span>{{ sub.name }}</span>
+                  <img :src="sub.isExpanded ? arrowUp : arrowDown" class="arrow-icon" style="width:12px;height:12px;margin-left:auto;" />
+                </div>
+                <transition name="slide">
+                  <div v-if="sub.isExpanded" class="sub-menu" style="padding-left:16px;">
+                    <div v-for="(child, childIndex) in sub.children" :key="childIndex"
+                      class="sub-item"
+                      :class="{ active: activeMenu === child.path }" @click.stop="changeMenu(child.path)">
+                      <img :src="child.icon" class="sub-icon" />
+                      <span>{{ child.name }}</span>
+                    </div>
+                  </div>
+                </transition>
+              </div>
+            </template>
           </div>
         </transition>
       </div>
@@ -139,11 +157,6 @@ export default {
               name: '成本计算应用',
               icon: require('../pages/photo/data.png'),
               path: '/CostCalculation'
-            },
-            {
-              name: '工序规格码单价明细与统计',
-              icon: require('../pages/photo/data.png'),
-              path: '/processPriceStats'
             }
           ]
         },
@@ -179,11 +192,6 @@ export default {
               path: '/assemblyFuture8Weeks'
             },
             {
-              name: '锁体C分区域库存计算',
-              icon: require('../pages/photo/data.png'),
-              path: '/lockBodyProcessStats'
-            },
-            {
               name: '各车间欠料',
               icon: require('../pages/photo/data.png'),
               path: '/lackMaterial'
@@ -194,14 +202,36 @@ export default {
               path: '/outsourceLackMaterial'
             },
             {
-              name: '全流程报工库存-CNC锁体车间',
+              name: '工序规格码单价明细与统计',
               icon: require('../pages/photo/data.png'),
-              path: '/fullProcessInventory/CNC'
+              path: '/processPriceStats'
             },
             {
-              name: '全流程报工库存-电子锁车间',
+              name: '工序规格码单价对应产品明细与统计',
               icon: require('../pages/photo/data.png'),
-              path: '/fullProcessInventory/DZS'
+              path: '/offlineProcess'
+            },
+            {
+              name: '全流程报工库存',
+              icon: require('../pages/photo/data.png'),
+              isExpanded: false,
+              children: [
+                {
+                  name: '锁体C分区域库存计算',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockBodyProcessStats'
+                },
+                {
+                  name: '全流程报工库存-CNC锁体车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/CNC'
+                },
+                {
+                  name: '全流程报工库存-电子锁车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/DZS'
+                }
+              ]
             }
           ]
         }
@@ -238,11 +268,6 @@ export default {
               path: '/assemblyFuture8Weeks'
             },
             {
-              name: '锁体C分区域库存计算',
-              icon: require('../pages/photo/data.png'),
-              path: '/lockBodyProcessStats'
-            },
-            {
               name: '各车间欠料',
               icon: require('../pages/photo/data.png'),
               path: '/lackMaterial'
@@ -253,14 +278,36 @@ export default {
               path: '/outsourceLackMaterial'
             },
             {
-              name: '全流程报工库存-CNC锁体车间',
+              name: '工序规格码单价明细与统计',
               icon: require('../pages/photo/data.png'),
-              path: '/fullProcessInventory/CNC'
+              path: '/processPriceStats'
             },
             {
-              name: '全流程报工库存-电子锁车间',
+              name: '工序规格码单价对应产品明细与统计',
               icon: require('../pages/photo/data.png'),
-              path: '/fullProcessInventory/DZS'
+              path: '/offlineProcess'
+            },
+            {
+              name: '全流程报工库存',
+              icon: require('../pages/photo/data.png'),
+              isExpanded: false,
+              children: [
+                {
+                  name: '锁体C分区域库存计算',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockBodyProcessStats'
+                },
+                {
+                  name: '全流程报工库存-CNC锁体车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/CNC'
+                },
+                {
+                  name: '全流程报工库存-电子锁车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/DZS'
+                }
+              ]
             }
           ]
         }
@@ -294,9 +341,17 @@ export default {
     updateMenuExpanded(currentPath) {
       this.menus.forEach(menu => {
         if (menu.children) {
-          menu.isExpanded = menu.children.some(child =>
-            child.path === currentPath
-          );
+          let hasActiveChild = false;
+          menu.children.forEach(child => {
+            if (child.path === currentPath) {
+              hasActiveChild = true;
+            }
+            if (child.children) {
+              child.isExpanded = child.children.some(sub => sub.path === currentPath);
+              if (child.isExpanded) hasActiveChild = true;
+            }
+          });
+          menu.isExpanded = hasActiveChild;
         }
       });
     },
@@ -310,11 +365,6 @@ export default {
       }
     },
     toggleSubMenu(menu) {
-      this.menus.forEach(m => {
-        if (m !== menu && m.children) {
-          m.isExpanded = false;
-        }
-      });
       menu.isExpanded = !menu.isExpanded;
     },
     changeMenu(path) {
