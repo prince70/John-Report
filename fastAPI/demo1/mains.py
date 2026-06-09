@@ -34,6 +34,7 @@ from Abus_BigData_Cal.outsourceLackMaterial import router as outsourceLackMateri
 from Abus_BigData_Cal.fullProcessInventoryCNC import router as fullProcessInventoryCNC_router
 from Abus_BigData_Cal.fullProcessInventoryDZS import router as fullProcessInventoryDZS_router
 from Abus_BigData_Cal.offlineProcess import router as offlineProcess_router
+from Abus_BigData_Cal.lockCWorkProgress import router as lockCWorkProgress_router
 app = FastAPI()
 
 # 初始化缓存 使用内存缓存而不是redis缓存
@@ -82,6 +83,7 @@ app.include_router(outsourceLackMaterial_router)
 app.include_router(fullProcessInventoryCNC_router)
 app.include_router(fullProcessInventoryDZS_router)
 app.include_router(offlineProcess_router)
+app.include_router(lockCWorkProgress_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8092", "http://127.0.0.1:8092", "http://report.abushardware.com", "http://192.168.10.118:8092"], 

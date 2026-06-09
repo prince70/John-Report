@@ -22,6 +22,7 @@ import ProcessPriceStats from '../pages/John/processPriceStats.vue';
 import FullProcessInventoryCNC from '../pages/APS_Stat/fullProcessInventoryCNC.vue';
 import FullProcessInventoryDZS from '../pages/APS_Stat/fullProcessInventoryDZS.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
+import LockCWorkProgress from '../pages/APS_Stat/lockCWorkProgress.vue';
 
 Vue.use(VueRouter);
 
@@ -159,6 +160,12 @@ const routes = [
     path: '/offlineProcess',
     name: 'OfflineProcess',
     component: OfflineProcess,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/lockCWorkProgress',
+    name: 'LockCWorkProgress',
+    component: LockCWorkProgress,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

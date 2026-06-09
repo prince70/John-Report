@@ -232,6 +232,11 @@ export default {
                   path: '/fullProcessInventory/DZS'
                 }
               ]
+            },
+            {
+              name: '锁体C车间生产进度表',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockCWorkProgress'
             }
           ]
         }
@@ -308,6 +313,11 @@ export default {
                   path: '/fullProcessInventory/DZS'
                 }
               ]
+            },
+            {
+              name: '锁体C车间生产进度表',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockCWorkProgress'
             }
           ]
         }
