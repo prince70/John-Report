@@ -230,6 +230,21 @@ export default {
                   name: '全流程报工库存-电子锁车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/DZS'
+                },
+                {
+                  name: '全流程报工库存-钥匙车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/KEY'
+                },
+                {
+                  name: '全流程报工库存-锁体A车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STA'
+                },
+                {
+                  name: '全流程报工库存-锁体C车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STC'
                 }
               ]
             },
@@ -311,6 +326,21 @@ export default {
                   name: '全流程报工库存-电子锁车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/DZS'
+                },
+                {
+                  name: '全流程报工库存-钥匙车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/KEY'
+                },
+                {
+                  name: '全流程报工库存-锁体A车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STA'
+                },
+                {
+                  name: '全流程报工库存-锁体C车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STC'
                 }
               ]
             },

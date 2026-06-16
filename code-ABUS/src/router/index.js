@@ -21,6 +21,9 @@ import OutsourceLackMaterial from '../pages/APS_Stat/outsourceLackMaterial.vue';
 import ProcessPriceStats from '../pages/John/processPriceStats.vue';
 import FullProcessInventoryCNC from '../pages/APS_Stat/fullProcessInventoryCNC.vue';
 import FullProcessInventoryDZS from '../pages/APS_Stat/fullProcessInventoryDZS.vue';
+import FullProcessInventoryKEY from '../pages/APS_Stat/fullProcessInventoryKEY.vue';
+import FullProcessInventorySTA from '../pages/APS_Stat/fullProcessInventorySTA.vue';
+import FullProcessInventorySTC from '../pages/APS_Stat/fullProcessInventorySTC.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
 import LockCWorkProgress from '../pages/APS_Stat/lockCWorkProgress.vue';
 
@@ -154,6 +157,24 @@ const routes = [
     path: '/fullProcessInventory/DZS',
     name: 'FullProcessInventoryDZS',
     component: FullProcessInventoryDZS,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/KEY',
+    name: 'FullProcessInventoryKEY',
+    component: FullProcessInventoryKEY,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/STA',
+    name: 'FullProcessInventorySTA',
+    component: FullProcessInventorySTA,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/STC',
+    name: 'FullProcessInventorySTC',
+    component: FullProcessInventorySTC,
     meta: { requiresAuth: true }
   },
   {
