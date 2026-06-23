@@ -245,6 +245,11 @@ export default {
                   name: '全流程报工库存-锁体C车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/STC'
+                },
+                {
+                  name: '全流程报工库存-开料车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/KL'
                 }
               ]
             },
@@ -341,6 +346,11 @@ export default {
                   name: '全流程报工库存-锁体C车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/STC'
+                },
+                {
+                  name: '全流程报工库存-开料车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/KL'
                 }
               ]
             },
