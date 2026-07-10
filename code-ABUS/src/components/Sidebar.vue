@@ -207,7 +207,7 @@ export default {
               path: '/processPriceStats'
             },
             {
-              name: '工序规格码单价对应产品明细与统计',
+              name: '排产所有工序对应单价',
               icon: require('../pages/photo/data.png'),
               path: '/offlineProcess'
             },
@@ -308,7 +308,7 @@ export default {
               path: '/processPriceStats'
             },
             {
-              name: '工序规格码单价对应产品明细与统计',
+              name: '排产所有工序对应单价',
               icon: require('../pages/photo/data.png'),
               path: '/offlineProcess'
             },

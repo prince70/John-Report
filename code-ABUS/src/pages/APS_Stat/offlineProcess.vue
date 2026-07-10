@@ -5,88 +5,113 @@
         <div class="el-card__body">
           <el-form @submit.native.prevent="searchData" label-width="100px">
             <el-row :gutter="20">
-              <el-col :span="6">
-                <el-form-item label="data_type">
+              <el-col :span="8">
+                <el-form-item label="料品规格">
                   <el-select
-                    v-model="filters.data_type"
-                    placeholder="选择data_type"
+                    v-model="filters.料品规格"
+                    placeholder="选择或搜索料品规格"
                     filterable
                     clearable
+                    @change="onSpecChange"
                   >
-                    <el-option v-for="o in dataTypeOptions" :key="o" :label="o" :value="o" />
+                    <el-option v-for="o in specOptions" :key="o" :label="o" :value="o" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="part_name">
+              <el-col :span="8">
+                <el-form-item label="生产车间">
                   <el-select
-                    v-model="filters.part_name"
-                    placeholder="选择part_name"
+                    v-model="filters.生产车间"
+                    placeholder="选择车间"
                     filterable
                     clearable
+                    @change="onWorkshopChange"
                   >
-                    <el-option v-for="o in partNameOptions" :key="o" :label="o" :value="o" />
+                    <el-option v-for="o in workshopOptions" :key="o" :label="o" :value="o" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="部门">
-                  <el-select
-                    v-model="filters.DepartmentName"
-                    placeholder="选择部门"
-                    filterable
-                    clearable
-                  >
-                    <el-option v-for="o in departmentOptions" :key="o" :label="o" :value="o" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
+              <el-col :span="8">
                 <el-form-item label="工序">
                   <el-select
-                    v-model="filters.proccess"
+                    v-model="filters.工序"
                     placeholder="选择工序"
                     filterable
                     clearable
+                    @change="onProcessChange"
                   >
-                    <el-option v-for="o in proccessOptions" :key="o" :label="o" :value="o" />
+                    <el-option v-for="o in processOptions" :key="o" :label="o" :value="o" />
                   </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row :gutter="20">
-              <el-col :span="6">
-                <el-form-item label="item_no">
-                  <el-input
-                    v-model="filters.item_no"
-                    placeholder="请输入item_no"
-                    clearable
-                    @keyup.enter.native="searchData"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="part_spec">
-                  <el-input
-                    v-model="filters.part_spec"
-                    placeholder="请输入part_spec"
-                    clearable
-                    @keyup.enter.native="searchData"
-                  />
                 </el-form-item>
               </el-col>
             </el-row>
             <div class="form-actions">
               <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
               <el-button @click="resetFilters">重置</el-button>
+              <el-button type="success" :loading="exporting" @click="exportExcel">
+                {{ exporting ? '导出中...' : '导出Excel' }}
+              </el-button>
             </div>
           </el-form>
         </div>
       </div>
 
+      <div v-if="statsData.length" class="el-card is-always-shadow mb-4">
+        <div class="el-card__body">
+          <div class="stats-title">各车间统计（悬停查看详情）</div>
+          <el-table
+            :data="paginatedStats"
+            border
+            stripe
+            style="width: 100%"
+            :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+          >
+            <el-table-column type="index" label="序号" width="60" align="center" :index="statsIndex" />
+            <el-table-column prop="生产车间" label="生产车间" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="规格数" label="规格种类数" width="120" align="center">
+              <template #default="scope">
+                <el-tooltip placement="top" popper-class="stats-tooltip">
+                  <template #content>
+                    <div style="max-height:200px;overflow-y:auto;white-space:pre-wrap;">
+                      {{ scope.row.规格列表.join('\n') }}
+                    </div>
+                  </template>
+                  <span class="stats-count">{{ scope.row.规格数 }}</span>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+            <el-table-column prop="工序数" label="工序种类数" width="120" align="center">
+              <template #default="scope">
+                <el-tooltip placement="top" popper-class="stats-tooltip">
+                  <template #content>
+                    <div style="max-height:200px;overflow-y:auto;white-space:pre-wrap;">
+                      {{ scope.row.工序列表.join('\n') }}
+                    </div>
+                  </template>
+                  <span class="stats-count">{{ scope.row.工序数 }}</span>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="pagination-row" style="margin-top:12px;">
+            <el-pagination
+              background
+              small
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="statsData.length"
+              :current-page="statsPage"
+              :page-sizes="[5, 10, 20, 50]"
+              :page-size="statsPageSize"
+              @size-change="handleStatsSizeChange"
+              @current-change="handleStatsPageChange"
+            />
+          </div>
+        </div>
+      </div>
+
       <div class="el-card is-always-shadow mb-4 summary-card">
         <div class="el-card__body summary-row">
-          <span>总条数: <b>{{ total }}</b></span>
+          <span>总条数: <b>{{ total }}</b> | 车间数: <b>{{ statsData.length }}</b></span>
         </div>
       </div>
 
@@ -106,20 +131,18 @@
             :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
           >
             <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod" />
-            <el-table-column prop="data_type" label="data_type" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="item_no" label="item_no" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="part_name" label="part_name" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="part_spec" label="part_spec" min-width="180" show-overflow-tooltip />
-            <el-table-column prop="before_proccess" label="上一工序" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="before_proccessNumber" label="上一工序编号" min-width="130" show-overflow-tooltip />
-            <el-table-column prop="proccess" label="当前工序" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="proccessNumber" label="工序规格码" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="DepartmentName" label="部门" min-width="100" show-overflow-tooltip />
-            <el-table-column prop="capacity" label="产能" min-width="80" show-overflow-tooltip />
-            <el-table-column prop="status" label="状态" min-width="80" show-overflow-tooltip />
-            <el-table-column prop="days" label="天数" min-width="80" show-overflow-tooltip />
-            <el-table-column prop="包装方式" label="包装方式" min-width="100" show-overflow-tooltip />
-            <el-table-column prop="OpExternalId" label="OpExternalId" min-width="130" show-overflow-tooltip />
+            <el-table-column prop="物料类型" label="物料类型" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="料品编码" label="料品编码" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="料品名称" label="料品名称" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="料品规格" label="料品规格" min-width="180" show-overflow-tooltip />
+            <el-table-column prop="生产车间" label="生产车间" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="工序" label="工序" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="工序规格码" label="工序规格码" min-width="130" show-overflow-tooltip />
+            <el-table-column prop="生效单价" label="生效单价" width="100" align="right">
+              <template #default="scope">
+                <span style="color:#e6a23c;font-weight:bold">{{ formatPrice(scope.row.生效单价) }}</span>
+              </template>
+            </el-table-column>
           </el-table>
           <el-empty v-else description="暂无数据" />
 
@@ -151,26 +174,26 @@ export default {
   components: { Layout },
   data() {
     return {
-      breadcrumbItems: ['报表页面', '工序规格码单价对应产品明细与统计'],
+      breadcrumbItems: ['报表页面', '排产所有工序对应单价'],
       filters: {
-        data_type: '',
-        part_name: '',
-        part_spec: '',
-        DepartmentName: '',
-        proccess: '',
-        item_no: ''
+        料品规格: '',
+        生产车间: '',
+        工序: ''
       },
-      dataTypeOptions: [],
-      partNameOptions: [],
-      departmentOptions: [],
-      proccessOptions: [],
+      specOptions: [],
+      workshopOptions: [],
+      processOptions: [],
       tableData: [],
       allData: [],
+      statsData: [],
       loading: false,
+      exporting: false,
       currentPage: 1,
       pageSize: 100,
       total: 0,
-      sidebarMenus: []
+      statsPage: 1,
+      statsPageSize: 10,
+      sidebarMenus: [],
     }
   },
   created() {
@@ -178,8 +201,17 @@ export default {
       this.sidebarMenus = menus
       this.generateBreadcrumb(this.$route.path)
     })
-    this.loadOptions()
+    this.loadAllOptions()
     this.searchData()
+  },
+  computed: {
+    paginatedStats() {
+      const start = (this.statsPage - 1) * this.statsPageSize
+      return this.statsData.slice(start, start + this.statsPageSize)
+    },
+    statsIndex() {
+      return (this.statsPage - 1) * this.statsPageSize + 1
+    }
   },
   watch: {
     $route(newVal) {
@@ -199,63 +231,82 @@ export default {
               }
             }
           }
-          return targetPath.split('/').pop()
+          return path.split('/').pop()
         }
         const paths = path.split('/').filter(p => p)
         const menuNames = findMenuName(menus, '/' + paths.join('/'))
-        this.breadcrumbItems = Array.isArray(menuNames) ? menuNames : [menuNames]
+        this.breadcrumbItems = Array.isArray(menuNames) ? menuNames : ['报表页面', '排产所有工序对应单价']
       } catch {
-        this.breadcrumbItems = ['报表页面', '工序规格码单价对应产品明细与统计']
+        this.breadcrumbItems = ['报表页面', '排产所有工序对应单价']
       }
     },
     indexMethod(index) {
       return (this.currentPage - 1) * this.pageSize + index + 1
     },
-    async loadOptions() {
+    formatPrice(val) {
+      if (val === null || val === undefined || val === 0) return '-'
+      return Number(val).toFixed(4)
+    },
+    async loadAllOptions() {
       try {
-        const fields = ['data_type', 'part_name', 'DepartmentName', 'proccess']
-        const results = await Promise.all(
-          fields.map(f =>
-            axios.get('/api/offlineProcess/options', { params: { field: f } })
-              .then(res => ({ field: f, data: res.data }))
-              .catch(() => ({ field: f, data: { status: 'error', data: [] } }))
-          )
-        )
-        for (const r of results) {
-          if (r.data?.status === 'success' && Array.isArray(r.data.data)) {
-            const values = r.data.data.map(i => i.value)
-            if (r.field === 'data_type') this.dataTypeOptions = values
-            else if (r.field === 'part_name') this.partNameOptions = values
-            else if (r.field === 'DepartmentName') this.departmentOptions = values
-            else if (r.field === 'proccess') this.proccessOptions = values
-          }
+        const res = await axios.get('/api/offlineProcess/cascade-options')
+        if (res.data?.status === 'success') {
+          const d = res.data.data || {}
+          this.specOptions = d['料品规格'] || []
+          this.workshopOptions = d['生产车间'] || []
+          this.processOptions = d['工序'] || []
         }
       } catch (e) {
-        console.error('loadOptions error:', e)
+        console.error('loadAllOptions error:', e)
       }
+    },
+    async loadCascadeOptions() {
+      const params = {}
+      if (this.filters['料品规格']) params['料品规格'] = this.filters['料品规格']
+      if (this.filters['生产车间']) params['生产车间'] = this.filters['生产车间']
+      if (this.filters['工序']) params['工序'] = this.filters['工序']
+      try {
+        const res = await axios.get('/api/offlineProcess/cascade-options', { params })
+        if (res.data?.status === 'success') {
+          const d = res.data.data || {}
+          this.specOptions = d['料品规格'] || []
+          this.workshopOptions = d['生产车间'] || []
+          this.processOptions = d['工序'] || []
+        }
+      } catch (e) {
+        console.error('loadCascadeOptions error:', e)
+      }
+    },
+    onSpecChange() {
+      this.loadCascadeOptions()
+    },
+    onWorkshopChange() {
+      this.loadCascadeOptions()
+    },
+    onProcessChange() {
+      this.loadCascadeOptions()
     },
     async searchData() {
       this.loading = true
       this.currentPage = 1
+      this.statsPage = 1
       try {
         const params = {}
-        if (this.filters.data_type) params.data_type = this.filters.data_type.trim()
-        if (this.filters.part_name) params.part_name = this.filters.part_name.trim()
-        if (this.filters.part_spec) params.part_spec = this.filters.part_spec.trim()
-        if (this.filters.DepartmentName) params.DepartmentName = this.filters.DepartmentName.trim()
-        if (this.filters.proccess) params.proccess = this.filters.proccess.trim()
-        if (this.filters.item_no) params.item_no = this.filters.item_no.trim()
+        if (this.filters.料品规格) params.料品规格 = this.filters.料品规格.trim()
+        if (this.filters.生产车间) params.生产车间 = this.filters.生产车间.trim()
+        if (this.filters.工序) params.工序 = this.filters.工序.trim()
 
         const response = await axios.get('/api/offlineProcess', { params })
         if (response.data?.status === 'success') {
           this.allData = response.data.data || []
+          this.statsData = response.data.stats || []
           this.total = response.data.total_count || this.allData.length
           this.updateTableData()
         } else {
           this.$message.error('数据获取失败')
         }
       } catch (error) {
-        console.error('获取offline_process数据失败:', error)
+        console.error('获取数据失败:', error)
         this.$message.error('数据加载失败，请检查网络连接')
       } finally {
         this.loading = false
@@ -274,9 +325,58 @@ export default {
       this.currentPage = 1
       this.updateTableData()
     },
+    handleStatsPageChange(page) {
+      this.statsPage = page
+    },
+    handleStatsSizeChange(size) {
+      this.statsPageSize = size
+      this.statsPage = 1
+    },
     resetFilters() {
-      this.filters = { data_type: '', part_name: '', part_spec: '', DepartmentName: '', proccess: '', item_no: '' }
+      this.filters = { 料品规格: '', 生产车间: '', 工序: '' }
+      this.loadAllOptions()
       this.searchData()
+    },
+    async exportExcel() {
+      this.exporting = true
+      try {
+        const params = {}
+        if (this.filters.料品规格) params.料品规格 = this.filters.料品规格.trim()
+        if (this.filters.生产车间) params.生产车间 = this.filters.生产车间.trim()
+        if (this.filters.工序) params.工序 = this.filters.工序.trim()
+
+        const response = await axios.get('/api/offlineProcess/export', {
+          params,
+          responseType: 'blob'
+        })
+
+        let filename = '排产所有工序对应单价.xlsx'
+        const disposition = response.headers['content-disposition']
+        if (disposition) {
+          const match = disposition.match(/filename\*=UTF-8''(.+?)(?:;|$)/)
+          if (match) {
+            filename = decodeURIComponent(match[1])
+          }
+        }
+
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        this.$message.success('导出成功')
+      } catch (error) {
+        console.error('导出失败:', error)
+        this.$message.error('导出失败，请检查网络连接')
+      } finally {
+        this.exporting = false
+      }
     }
   }
 }
@@ -289,4 +389,11 @@ export default {
 .table-card { min-height: 100px; }
 .pagination-row { display: flex; justify-content: flex-end; margin-top: 16px; }
 .mb-4 { margin-bottom: 16px; }
+.stats-title { font-size: 15px; font-weight: bold; color: #303133; margin-bottom: 12px; }
+.stats-count { cursor: pointer; color: #409eff; font-weight: bold; }
+</style>
+
+<style>
+.stats-tooltip { max-width: 400px; }
+.stats-tooltip .el-tooltip__popper { max-width: 400px; }
 </style>
