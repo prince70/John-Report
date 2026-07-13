@@ -33,13 +33,13 @@ COLUMN_MAP = {
     "料品编码": "a.[item_no]",
     "料品名称": "a.[part_name]",
     "料品规格": "a.[part_spec]",
-    "生产车间": "a.[DepartmentName]",
+    "生产车间": "a.[生产车间]",
     "工序": "a.[proccess]",
     "工序规格码": "a.[proccessNumber]",
     "生效单价": "b.[生效单价]"
 }
 
-def get_data_from_db(part_spec=None, 生产车间=None, 工序=None):
+def get_data_from_db(part_name=None, 生产车间=None, 工序=None):
     conn = None
     try:
         conn = get_db_connection()
@@ -54,11 +54,11 @@ def get_data_from_db(part_spec=None, 生产车间=None, 工序=None):
         WHERE a.proccessNumber IS NOT NULL AND b.生效单价 IS NOT NULL
         """
         params = []
-        if part_spec:
-            sql += " AND a.[part_spec] LIKE ?"
-            params.append(f"%{part_spec}%")
+        if part_name:
+            sql += " AND a.[part_name] LIKE ?"
+            params.append(f"%{part_name}%")
         if 生产车间:
-            sql += " AND LTRIM(RTRIM(a.[DepartmentName])) = ?"
+            sql += " AND LTRIM(RTRIM(a.[生产车间])) = ?"
             params.append(生产车间.strip())
         if 工序:
             sql += " AND a.[proccess] LIKE ?"
@@ -92,20 +92,20 @@ def get_data_from_db(part_spec=None, 生产车间=None, 工序=None):
             except:
                 pass
 
-def get_cascade_options(part_spec=None, 生产车间=None, 工序=None):
+def get_cascade_options(part_name=None, 生产车间=None, 工序=None):
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        where_parts = ["a.proccessNumber IS NOT NULL"]
+        where_parts = ["a.proccessNumber IS NOT NULL", "EXISTS (SELECT 1 FROM [TSD].[wygz].[dbo].[工序单价表] b WHERE a.proccessNumber = b.工序规格码 AND b.生效单价 IS NOT NULL)"]
         params = []
 
-        if part_spec:
-            where_parts.append("a.[part_spec] LIKE ?")
-            params.append(f"%{part_spec}%")
+        if part_name:
+            where_parts.append("a.[part_name] LIKE ?")
+            params.append(f"%{part_name}%")
         if 生产车间:
-            where_parts.append("LTRIM(RTRIM(a.[DepartmentName])) = ?")
+            where_parts.append("LTRIM(RTRIM(a.[生产车间])) = ?")
             params.append(生产车间.strip())
         if 工序:
             where_parts.append("a.[proccess] LIKE ?")
@@ -113,8 +113,13 @@ def get_cascade_options(part_spec=None, 生产车间=None, 工序=None):
 
         where_clause = " AND ".join(where_parts)
 
+        # 料品名称选项
+        sql_name = f"SELECT DISTINCT a.[part_name] AS v FROM [APS_SUO].[dbo].[offline_process] a WHERE {where_clause} AND a.[part_name] IS NOT NULL AND a.[part_name] != '' ORDER BY v"
+        cursor.execute(sql_name, params)
+        料品名称_options = [row[0] for row in cursor.fetchall()]
+
         # 生产车间选项
-        sql_dept = f"SELECT DISTINCT TOP 200 LTRIM(RTRIM(a.[DepartmentName])) AS v FROM [APS_SUO].[dbo].[offline_process] a WHERE {where_clause} AND a.[DepartmentName] IS NOT NULL AND LTRIM(RTRIM(a.[DepartmentName])) != '' ORDER BY v"
+        sql_dept = f"SELECT DISTINCT TOP 200 LTRIM(RTRIM(a.[生产车间])) AS v FROM [APS_SUO].[dbo].[offline_process] a WHERE {where_clause} AND a.[生产车间] IS NOT NULL AND LTRIM(RTRIM(a.[生产车间])) != '' ORDER BY v"
         cursor.execute(sql_dept, params)
         生产车间_options = [row[0] for row in cursor.fetchall()]
 
@@ -123,15 +128,10 @@ def get_cascade_options(part_spec=None, 生产车间=None, 工序=None):
         cursor.execute(sql_proc, params)
         工序_options = [row[0] for row in cursor.fetchall()]
 
-        # 料品规格选项
-        sql_spec = f"SELECT DISTINCT TOP 200 a.[part_spec] AS v FROM [APS_SUO].[dbo].[offline_process] a WHERE {where_clause} AND a.[part_spec] IS NOT NULL AND a.[part_spec] != '' ORDER BY v"
-        cursor.execute(sql_spec, params)
-        料品规格_options = [row[0] for row in cursor.fetchall()]
-
         return {
             "生产车间": 生产车间_options,
             "工序": 工序_options,
-            "料品规格": 料品规格_options,
+            "料品名称": 料品名称_options,
         }
     except Exception as exc:
         raise exc
@@ -170,12 +170,12 @@ def compute_stats(data):
 @router.get("/offlineProcess", summary="排产所有工序对应单价")
 @cache(expire=1800)
 async def get_offline_process(
-    料品规格: Optional[str] = Query(None, description="料品规格（模糊查询）"),
+    料品名称: Optional[str] = Query(None, description="料品名称（模糊查询）"),
     生产车间: Optional[str] = Query(None, description="车间（精确匹配）"),
     工序: Optional[str] = Query(None, description="工序（模糊查询）"),
 ):
     try:
-        raw_data = get_data_from_db(料品规格, 生产车间, 工序)
+        raw_data = get_data_from_db(料品名称, 生产车间, 工序)
         stats = compute_stats(raw_data)
         return {
             "status": "success",
@@ -189,26 +189,27 @@ async def get_offline_process(
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
 
 @router.get("/offlineProcess/cascade-options", summary="级联筛选下拉选项")
+@cache(expire=1800)
 async def get_cascade_options_endpoint(
-    料品规格: Optional[str] = Query(None, description="料品规格"),
+    料品名称: Optional[str] = Query(None, description="料品名称"),
     生产车间: Optional[str] = Query(None, description="车间"),
     工序: Optional[str] = Query(None, description="工序"),
 ):
     try:
-        data = get_cascade_options(料品规格, 生产车间, 工序)
+        data = get_cascade_options(料品名称, 生产车间, 工序)
         return {"status": "success", "data": data}
     except Exception as exc:
         print(f"获取级联选项失败: {exc}")
-        return {"status": "success", "data": {"生产车间": [], "工序": [], "料品规格": []}}
+        return {"status": "success", "data": {"生产车间": [], "工序": [], "料品名称": []}}
 
 @router.get("/offlineProcess/export", summary="导出Excel")
 async def export_offline_process_excel(
-    料品规格: Optional[str] = Query(None, description="料品规格"),
+    料品名称: Optional[str] = Query(None, description="料品名称"),
     生产车间: Optional[str] = Query(None, description="车间"),
     工序: Optional[str] = Query(None, description="工序"),
 ):
     try:
-        data = get_data_from_db(料品规格, 生产车间, 工序)
+        data = get_data_from_db(料品名称, 生产车间, 工序)
 
         wb = Workbook()
         ws = wb.active

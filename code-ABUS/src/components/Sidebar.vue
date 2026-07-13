@@ -257,6 +257,11 @@ export default {
               name: '锁体C车间生产进度表',
               icon: require('../pages/photo/data.png'),
               path: '/lockCWorkProgress'
+            },
+            {
+              name: '超市多出的损耗数',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockBodyOverage'
             }
           ]
         }
@@ -358,6 +363,11 @@ export default {
               name: '锁体C车间生产进度表',
               icon: require('../pages/photo/data.png'),
               path: '/lockCWorkProgress'
+            },
+            {
+              name: '超市多出的损耗数',
+              icon: require('../pages/photo/data.png'),
+              path: '/lockBodyOverage'
             }
           ]
         }

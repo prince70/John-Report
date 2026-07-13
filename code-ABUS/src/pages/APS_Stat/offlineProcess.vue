@@ -6,15 +6,15 @@
           <el-form @submit.native.prevent="searchData" label-width="100px">
             <el-row :gutter="20">
               <el-col :span="8">
-                <el-form-item label="料品规格">
+                <el-form-item label="料品名称">
                   <el-select
-                    v-model="filters.料品规格"
-                    placeholder="选择或搜索料品规格"
+                    v-model="filters.料品名称"
+                    placeholder="选择或搜索料品名称"
                     filterable
                     clearable
-                    @change="onSpecChange"
+                    @change="onNameChange"
                   >
-                    <el-option v-for="o in specOptions" :key="o" :label="o" :value="o" />
+                    <el-option v-for="o in nameOptions" :key="o" :label="o" :value="o" />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -58,7 +58,7 @@
 
       <div v-if="statsData.length" class="el-card is-always-shadow mb-4">
         <div class="el-card__body">
-          <div class="stats-title">各车间统计（悬停查看详情）</div>
+          <div class="stats-title">各车间统计</div>
           <el-table
             :data="paginatedStats"
             border
@@ -176,11 +176,11 @@ export default {
     return {
       breadcrumbItems: ['报表页面', '排产所有工序对应单价'],
       filters: {
-        料品规格: '',
+        料品名称: '',
         生产车间: '',
         工序: ''
       },
-      specOptions: [],
+      nameOptions: [],
       workshopOptions: [],
       processOptions: [],
       tableData: [],
@@ -252,7 +252,7 @@ export default {
         const res = await axios.get('/api/offlineProcess/cascade-options')
         if (res.data?.status === 'success') {
           const d = res.data.data || {}
-          this.specOptions = d['料品规格'] || []
+          this.nameOptions = d['料品名称'] || []
           this.workshopOptions = d['生产车间'] || []
           this.processOptions = d['工序'] || []
         }
@@ -262,14 +262,14 @@ export default {
     },
     async loadCascadeOptions() {
       const params = {}
-      if (this.filters['料品规格']) params['料品规格'] = this.filters['料品规格']
+      if (this.filters['料品名称']) params['料品名称'] = this.filters['料品名称']
       if (this.filters['生产车间']) params['生产车间'] = this.filters['生产车间']
       if (this.filters['工序']) params['工序'] = this.filters['工序']
       try {
         const res = await axios.get('/api/offlineProcess/cascade-options', { params })
         if (res.data?.status === 'success') {
           const d = res.data.data || {}
-          this.specOptions = d['料品规格'] || []
+          this.nameOptions = d['料品名称'] || []
           this.workshopOptions = d['生产车间'] || []
           this.processOptions = d['工序'] || []
         }
@@ -277,7 +277,7 @@ export default {
         console.error('loadCascadeOptions error:', e)
       }
     },
-    onSpecChange() {
+    onNameChange() {
       this.loadCascadeOptions()
     },
     onWorkshopChange() {
@@ -292,7 +292,7 @@ export default {
       this.statsPage = 1
       try {
         const params = {}
-        if (this.filters.料品规格) params.料品规格 = this.filters.料品规格.trim()
+        if (this.filters.料品名称) params.料品名称 = this.filters.料品名称.trim()
         if (this.filters.生产车间) params.生产车间 = this.filters.生产车间.trim()
         if (this.filters.工序) params.工序 = this.filters.工序.trim()
 
@@ -333,7 +333,7 @@ export default {
       this.statsPage = 1
     },
     resetFilters() {
-      this.filters = { 料品规格: '', 生产车间: '', 工序: '' }
+      this.filters = { 料品名称: '', 生产车间: '', 工序: '' }
       this.loadAllOptions()
       this.searchData()
     },
@@ -341,7 +341,7 @@ export default {
       this.exporting = true
       try {
         const params = {}
-        if (this.filters.料品规格) params.料品规格 = this.filters.料品规格.trim()
+        if (this.filters.料品名称) params.料品名称 = this.filters.料品名称.trim()
         if (this.filters.生产车间) params.生产车间 = this.filters.生产车间.trim()
         if (this.filters.工序) params.工序 = this.filters.工序.trim()
 

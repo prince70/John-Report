@@ -27,6 +27,7 @@ import FullProcessInventorySTC from '../pages/APS_Stat/fullProcessInventorySTC.v
 import FullProcessInventoryKL from '../pages/APS_Stat/fullProcessInventoryKL.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
 import LockCWorkProgress from '../pages/APS_Stat/lockCWorkProgress.vue';
+import LockBodyOverage from '../pages/APS_Stat/lockBodyOverage.vue';
 
 Vue.use(VueRouter);
 
@@ -194,6 +195,12 @@ const routes = [
     path: '/lockCWorkProgress',
     name: 'LockCWorkProgress',
     component: LockCWorkProgress,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/lockBodyOverage',
+    name: 'LockBodyOverage',
+    component: LockBodyOverage,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由
