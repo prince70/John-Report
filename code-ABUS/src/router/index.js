@@ -26,6 +26,14 @@ import FullProcessInventorySTA from '../pages/APS_Stat/fullProcessInventorySTA.v
 import FullProcessInventorySTB from '../pages/APS_Stat/fullProcessInventorySTB.vue';
 import FullProcessInventorySTC from '../pages/APS_Stat/fullProcessInventorySTC.vue';
 import FullProcessInventoryKL from '../pages/APS_Stat/fullProcessInventoryKL.vue';
+import FullProcessInventorySL from '../pages/APS_Stat/fullProcessInventorySL.vue';
+import FullProcessInventorySTD from '../pages/APS_Stat/fullProcessInventorySTD.vue';
+import FullProcessInventorySX from '../pages/APS_Stat/fullProcessInventorySX.vue';
+import FullProcessInventoryZQ_DZSQ from '../pages/APS_Stat/fullProcessInventoryZQ_DZSQ.vue';
+import FullProcessInventoryZQ_GNSQ from '../pages/APS_Stat/fullProcessInventoryZQ_GNSQ.vue';
+import FullProcessInventoryZQ_LMSQ from '../pages/APS_Stat/fullProcessInventoryZQ_LMSQ.vue';
+import FullProcessInventoryDM_ZPQ from '../pages/APS_Stat/fullProcessInventoryDM_ZPQ.vue';
+import OverStockQuantity from '../pages/APS_Stat/overStockQuantity.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
 import LockCWorkProgress from '../pages/APS_Stat/lockCWorkProgress.vue';
 import LockBodyOverage from '../pages/APS_Stat/lockBodyOverage.vue';
@@ -190,6 +198,54 @@ const routes = [
     path: '/fullProcessInventory/KL',
     name: 'FullProcessInventoryKL',
     component: FullProcessInventoryKL,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/SL',
+    name: 'FullProcessInventorySL',
+    component: FullProcessInventorySL,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/STD',
+    name: 'FullProcessInventorySTD',
+    component: FullProcessInventorySTD,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/SX',
+    name: 'FullProcessInventorySX',
+    component: FullProcessInventorySX,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/ZQ_DZSQ',
+    name: 'FullProcessInventoryZQ_DZSQ',
+    component: FullProcessInventoryZQ_DZSQ,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/ZQ_GNSQ',
+    name: 'FullProcessInventoryZQ_GNSQ',
+    component: FullProcessInventoryZQ_GNSQ,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/ZQ_LMSQ',
+    name: 'FullProcessInventoryZQ_LMSQ',
+    component: FullProcessInventoryZQ_LMSQ,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/DM_ZPQ',
+    name: 'FullProcessInventoryDM_ZPQ',
+    component: FullProcessInventoryDM_ZPQ,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/overStockQuantity',
+    name: 'OverStockQuantity',
+    component: OverStockQuantity,
     meta: { requiresAuth: true }
   },
   {

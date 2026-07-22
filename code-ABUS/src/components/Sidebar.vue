@@ -255,8 +255,48 @@ export default {
                   name: '全流程报工库存-开料车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/KL'
+                },
+                {
+                  name: '全流程报工库存-锁梁车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/SL'
+                },
+                {
+                  name: '全流程报工库存-锁体D车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STD'
+                },
+                {
+                  name: '全流程报工库存-锁配件车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/SX'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-胆仔锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_DZSQ'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-功能锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_GNSQ'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-铝门锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_LMSQ'
+                },
+                {
+                  name: '全流程报工库存-打磨车间-装配区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/DM_ZPQ'
                 }
               ]
+            },
+            {
+              name: '超库存数量',
+              icon: require('../pages/photo/data.png'),
+              path: '/overStockQuantity'
             },
             {
               name: '锁体C车间生产进度表',
@@ -366,8 +406,48 @@ export default {
                   name: '全流程报工库存-开料车间',
                   icon: require('../pages/photo/data.png'),
                   path: '/fullProcessInventory/KL'
+                },
+                {
+                  name: '全流程报工库存-锁梁车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/SL'
+                },
+                {
+                  name: '全流程报工库存-锁体D车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/STD'
+                },
+                {
+                  name: '全流程报工库存-锁配件车间',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/SX'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-胆仔锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_DZSQ'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-功能锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_GNSQ'
+                },
+                {
+                  name: '全流程报工库存-装嵌车间-铝门锁区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/ZQ_LMSQ'
+                },
+                {
+                  name: '全流程报工库存-打磨车间-装配区',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessInventory/DM_ZPQ'
                 }
               ]
+            },
+            {
+              name: '超库存数量',
+              icon: require('../pages/photo/data.png'),
+              path: '/overStockQuantity'
             },
             {
               name: '锁体C车间生产进度表',
