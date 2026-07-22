@@ -35,6 +35,7 @@ from Abus_BigData_Cal.fullProcessInventoryCNC import router as fullProcessInvent
 from Abus_BigData_Cal.fullProcessInventoryDZS import router as fullProcessInventoryDZS_router
 from Abus_BigData_Cal.fullProcessInventoryKEY import router as fullProcessInventoryKEY_router
 from Abus_BigData_Cal.fullProcessInventorySTA import router as fullProcessInventorySTA_router
+from Abus_BigData_Cal.fullProcessInventorySTB import router as fullProcessInventorySTB_router
 from Abus_BigData_Cal.fullProcessInventorySTC import router as fullProcessInventorySTC_router
 from Abus_BigData_Cal.fullProcessInventoryKL import router as fullProcessInventoryKL_router
 from Abus_BigData_Cal.offlineProcess import router as offlineProcess_router
@@ -89,6 +90,7 @@ app.include_router(fullProcessInventoryCNC_router)
 app.include_router(fullProcessInventoryDZS_router)
 app.include_router(fullProcessInventoryKEY_router)
 app.include_router(fullProcessInventorySTA_router)
+app.include_router(fullProcessInventorySTB_router)
 app.include_router(fullProcessInventorySTC_router)
 app.include_router(fullProcessInventoryKL_router)
 app.include_router(offlineProcess_router)

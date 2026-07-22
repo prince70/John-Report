@@ -23,6 +23,7 @@ import FullProcessInventoryCNC from '../pages/APS_Stat/fullProcessInventoryCNC.v
 import FullProcessInventoryDZS from '../pages/APS_Stat/fullProcessInventoryDZS.vue';
 import FullProcessInventoryKEY from '../pages/APS_Stat/fullProcessInventoryKEY.vue';
 import FullProcessInventorySTA from '../pages/APS_Stat/fullProcessInventorySTA.vue';
+import FullProcessInventorySTB from '../pages/APS_Stat/fullProcessInventorySTB.vue';
 import FullProcessInventorySTC from '../pages/APS_Stat/fullProcessInventorySTC.vue';
 import FullProcessInventoryKL from '../pages/APS_Stat/fullProcessInventoryKL.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
@@ -171,6 +172,12 @@ const routes = [
     path: '/fullProcessInventory/STA',
     name: 'FullProcessInventorySTA',
     component: FullProcessInventorySTA,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fullProcessInventory/STB',
+    name: 'FullProcessInventorySTB',
+    component: FullProcessInventorySTB,
     meta: { requiresAuth: true }
   },
   {
