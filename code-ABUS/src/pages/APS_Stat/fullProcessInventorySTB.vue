@@ -100,7 +100,7 @@
             <el-table-column prop="生产车间" label="生产车间" min-width="120" show-overflow-tooltip />
             <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
             <el-table-column prop="下一道工序ID" label="下一道工序ID" min-width="110" show-overflow-tooltip />
-            <el-table-column prop="完成日期" label="完成日期" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="完成日期" label="完成日期" min-width="110" show-overflow-tooltip />
             <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
               <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
             </el-table-column>
@@ -125,11 +125,11 @@ import Layout from '@/components/Layout.vue'
 import { eventBus } from '../../eventBus'
 
 export default {
-  name: 'FullProcessInventoryKEY',
+  name: 'FullProcessInventorySTB',
   components: { Layout },
   data() {
     return {
-      breadcrumbItems: ['报表页面', '全流程报工库存-钥匙车间'],
+      breadcrumbItems: ['报表页面', '全流程报工库存-锁体B车间'],
       filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
       workshopOptions: [], partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
       tableData: [], allData: [], loading: false,
@@ -148,14 +148,14 @@ export default {
         const find = (menus, p) => { for (const m of menus) { if (m.path === p) return m.name; if (m.children) for (const c of m.children) if (c.path === p) return [m.name, c.name] } return p.split('/').pop() }
         const r = find(this.sidebarMenus, '/' + path.split('/').filter(p => p).join('/'))
         this.breadcrumbItems = Array.isArray(r) ? r : [r]
-      } catch { this.breadcrumbItems = ['报表页面', '全流程报工库存-钥匙车间'] }
+      } catch { this.breadcrumbItems = ['报表页面', '全流程报工库存-锁体B车间'] }
     },
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },
     async loadOptions() {
       try {
         const fields = ['生产车间', '料品名称', '料品规格', '当前工序ID', '下一道工序ID']
-        const results = await Promise.all(fields.map(f => axios.get('/api/fullProcessInventoryKEY/options', { params: { field: f } }).then(res => ({ f, d: res.data })).catch(() => ({ f, d: { data: [] } }))))
+        const results = await Promise.all(fields.map(f => axios.get('/api/fullProcessInventorySTB/options', { params: { field: f } }).then(res => ({ f, d: res.data })).catch(() => ({ f, d: { data: [] } }))))
         for (const r of results) {
           const vals = (r.d.data || []).map(i => i.value)
           if (r.f === '生产车间') this.workshopOptions = vals
@@ -184,8 +184,8 @@ export default {
       try {
         const params = this.getFilterParams()
         const [dataRes, summaryRes] = await Promise.all([
-          axios.get('/api/fullProcessInventoryKEY', { params }),
-          axios.get('/api/fullProcessInventoryKEY/summary', { params })
+          axios.get('/api/fullProcessInventorySTB', { params }),
+          axios.get('/api/fullProcessInventorySTB/summary', { params })
         ])
         if (dataRes.data?.status === 'success') { this.allData = dataRes.data.data || []; this.total = dataRes.data.total_count || this.allData.length; this.updateTableData() }
         else this.$message.error('数据获取失败')

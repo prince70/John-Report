@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 import pyodbc
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi_cache.decorator import cache
 
 router = APIRouter()
@@ -19,14 +19,15 @@ def get_db_connection():
     )
     return pyodbc.connect(conn_str)
 
-def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None):
+def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = f"""
         SELECT [id], [订单批号], [料品编码], [料品名称], [料品规格],
-               [生产车间], [当前工序ID], [下一道工序ID], [报工数量总和], [库存], [备注]
+               [生产车间], [当前工序ID], [下一道工序ID], [报工数量总和], [库存], [备注],
+               CONVERT(VARCHAR(10), [FinishedDate], 120) AS [完成日期]
         FROM [APS_SUO].[dbo].[{TABLE_NAME}]
         WHERE 1=1
         """
@@ -46,6 +47,23 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
         if 生产车间:
             sql += " AND [生产车间] = ?"
             params.append(生产车间)
+        if 当前工序ID:
+            sql += " AND [当前工序ID] = ?"
+            params.append(当前工序ID)
+        if 下一道工序ID:
+            sql += " AND [下一道工序ID] = ?"
+            params.append(下一道工序ID)
+        if 开始日期 and 结束日期:
+            sql += " AND [FinishedDate] >= ? AND [FinishedDate] < ?"
+            params.append(开始日期)
+            end_date_obj = datetime.strptime(结束日期, '%Y-%m-%d') + timedelta(days=1)
+            params.append(end_date_obj.strftime('%Y-%m-%d'))
+        elif 开始日期:
+            sql += " AND [FinishedDate] >= ?"
+            params.append(开始日期)
+        elif 结束日期:
+            sql += " AND [FinishedDate] <= ?"
+            params.append(结束日期)
         sql += " ORDER BY [id]"
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -55,6 +73,7 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
             "生产车间": row[5] or "", "当前工序ID": row[6] or "",
             "下一道工序ID": row[7] or "", "报工数量总和": float(row[8]) if row[8] else 0,
             "库存": float(row[9]) if row[9] else 0, "备注": row[10] or "",
+            "完成日期": row[11] or "",
         } for row in rows]
     finally:
         if conn:
@@ -66,7 +85,7 @@ def get_options_from_db(field):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        col_map = {"生产车间": "生产车间", "料品名称": "料品名称", "料品规格": "料品规格"}
+        col_map = {"生产车间": "生产车间", "料品名称": "料品名称", "料品规格": "料品规格", "当前工序ID": "当前工序ID", "下一道工序ID": "下一道工序ID"}
         if field not in col_map:
             return []
         col = col_map[field]
@@ -81,14 +100,16 @@ def get_options_from_db(field):
             except: pass
 
 @router.get("/fullProcessInventorySTC", summary="全流程报工库存-锁体C车间")
-@cache(expire=1800)
+# @cache(expire=1800)
 async def get_data(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
     料品名称: Optional[str] = Query(None), 料品规格: Optional[str] = Query(None),
-    生产车间: Optional[str] = Query(None),
+    生产车间: Optional[str] = Query(None), 当前工序ID: Optional[str] = Query(None),
+    下一道工序ID: Optional[str] = Query(None),
+    开始日期: Optional[str] = Query(None), 结束日期: Optional[str] = Query(None),
 ):
     try:
-        raw_data = get_data_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间)
+        raw_data = get_data_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
         return {"status": "success", "data": raw_data, "total_count": len(raw_data), "timestamp": datetime.now().isoformat()}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
@@ -101,7 +122,7 @@ async def get_options(field: str = Query(...)):
     except Exception as exc:
         return {"status": "success", "data": []}
 
-def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None):
+def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
     conn = None
     try:
         conn = get_db_connection()
@@ -127,6 +148,23 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
         if 生产车间:
             sql += " AND [生产车间] = ?"
             params.append(生产车间)
+        if 当前工序ID:
+            sql += " AND [当前工序ID] = ?"
+            params.append(当前工序ID)
+        if 下一道工序ID:
+            sql += " AND [下一道工序ID] = ?"
+            params.append(下一道工序ID)
+        if 开始日期 and 结束日期:
+            sql += " AND [FinishedDate] >= ? AND [FinishedDate] < ?"
+            params.append(开始日期)
+            end_date_obj = datetime.strptime(结束日期, '%Y-%m-%d') + timedelta(days=1)
+            params.append(end_date_obj.strftime('%Y-%m-%d'))
+        elif 开始日期:
+            sql += " AND [FinishedDate] >= ?"
+            params.append(开始日期)
+        elif 结束日期:
+            sql += " AND [FinishedDate] <= ?"
+            params.append(结束日期)
         sql += " GROUP BY [当前工序ID] ORDER BY [当前工序ID]"
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -140,10 +178,12 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
 async def get_summary(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
     料品名称: Optional[str] = Query(None), 料品规格: Optional[str] = Query(None),
-    生产车间: Optional[str] = Query(None),
+    生产车间: Optional[str] = Query(None), 当前工序ID: Optional[str] = Query(None),
+    下一道工序ID: Optional[str] = Query(None),
+    开始日期: Optional[str] = Query(None), 结束日期: Optional[str] = Query(None),
 ):
     try:
-        data = get_summary_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间)
+        data = get_summary_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
         return {"status": "success", "data": data}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")

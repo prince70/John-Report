@@ -31,11 +31,34 @@
               </el-col>
             </el-row>
             <el-row :gutter="20">
-              <el-col :span="6">
+              <el-col :span="5">
                 <el-form-item label="生产车间">
                   <el-select v-model="filters.生产车间" placeholder="选择生产车间" filterable clearable>
                     <el-option v-for="o in workshopOptions" :key="o" :label="o" :value="o" />
                   </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="当前工序">
+                  <el-select v-model="filters.当前工序ID" placeholder="选择工序" filterable clearable>
+                    <el-option v-for="o in processOptions" :key="o" :label="o" :value="o" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="下一道工序">
+                  <el-select v-model="filters.下一道工序ID" placeholder="选择下一道工序" filterable clearable>
+                    <el-option v-for="o in nextProcessOptions" :key="o" :label="o" :value="o" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="9">
+                <el-form-item label="完成日期">
+                  <div class="date-range-inline">
+                    <el-date-picker v-model="filters.开始日期" type="date" placeholder="开始日期" value-format="yyyy-MM-dd" clearable style="width: 45%" />
+                    <span class="date-separator">至</span>
+                    <el-date-picker v-model="filters.结束日期" type="date" placeholder="结束日期" value-format="yyyy-MM-dd" clearable style="width: 45%" />
+                  </div>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -77,6 +100,7 @@
             <el-table-column prop="生产车间" label="生产车间" min-width="120" show-overflow-tooltip />
             <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
             <el-table-column prop="下一道工序ID" label="下一道工序ID" min-width="110" show-overflow-tooltip />
+            <el-table-column prop="完成日期" label="完成日期" min-width="110" show-overflow-tooltip />
             <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
               <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
             </el-table-column>
@@ -106,8 +130,8 @@ export default {
   data() {
     return {
       breadcrumbItems: ['报表页面', '全流程报工库存-锁体A车间'],
-      filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '' },
-      workshopOptions: [], partNameOptions: [], partSpecOptions: [],
+      filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
+      workshopOptions: [], partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
       tableData: [], allData: [], loading: false,
       currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [],
       summaryData: []
@@ -130,13 +154,15 @@ export default {
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },
     async loadOptions() {
       try {
-        const fields = ['生产车间', '料品名称', '料品规格']
+        const fields = ['生产车间', '料品名称', '料品规格', '当前工序ID', '下一道工序ID']
         const results = await Promise.all(fields.map(f => axios.get('/api/fullProcessInventorySTA/options', { params: { field: f } }).then(res => ({ f, d: res.data })).catch(() => ({ f, d: { data: [] } }))))
         for (const r of results) {
           const vals = (r.d.data || []).map(i => i.value)
           if (r.f === '生产车间') this.workshopOptions = vals
           else if (r.f === '料品名称') this.partNameOptions = vals
           else if (r.f === '料品规格') this.partSpecOptions = vals
+          else if (r.f === '当前工序ID') this.processOptions = vals
+          else if (r.f === '下一道工序ID') this.nextProcessOptions = vals
         }
       } catch {}
     },
@@ -147,6 +173,10 @@ export default {
       if (this.filters.part_name) params.料品名称 = this.filters.part_name.trim()
       if (this.filters.part_spec) params.料品规格 = this.filters.part_spec.trim()
       if (this.filters.生产车间) params.生产车间 = this.filters.生产车间
+      if (this.filters.当前工序ID) params.当前工序ID = this.filters.当前工序ID
+      if (this.filters.下一道工序ID) params.下一道工序ID = this.filters.下一道工序ID
+      if (this.filters.开始日期) params.开始日期 = this.filters.开始日期
+      if (this.filters.结束日期) params.结束日期 = this.filters.结束日期
       return params
     },
     async searchData() {
@@ -172,7 +202,7 @@ export default {
     updateTableData() { const s = (this.currentPage - 1) * this.pageSize; this.tableData = this.allData.slice(s, s + this.pageSize) },
     handlePageChange(p) { this.currentPage = p; this.updateTableData() },
     handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.updateTableData() },
-    resetFilters() { this.filters = { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '' }; this.searchData() }
+    resetFilters() { this.filters = { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' }; this.searchData() }
   }
 }
 </script>
@@ -186,4 +216,6 @@ export default {
 .table-card { min-height: 100px; }
 .pagination-row { display: flex; justify-content: flex-end; margin-top: 16px; }
 .mb-4 { margin-bottom: 16px; }
+.date-range-inline { display: flex; align-items: center; }
+.date-separator { margin: 0 6px; color: #909399; font-size: 14px; white-space: nowrap; }
 </style>

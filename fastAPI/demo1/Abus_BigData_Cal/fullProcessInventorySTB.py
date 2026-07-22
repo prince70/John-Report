@@ -10,7 +10,7 @@ DB_SERVER = "192.168.10.200"
 DB_DATABASE = "APS_SUO"
 DB_USERNAME = "sa"
 DB_PASSWORD = "5tgb^YHN7ujm*IK<"
-TABLE_NAME = "Full_process_reporting_STA"
+TABLE_NAME = "Full_process_reporting_STB"
 
 def get_db_connection():
     conn_str = (
@@ -57,9 +57,9 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
             sql += " AND [FinishedDate] >= ?"
             params.append(开始日期)
         if 结束日期:
-            end_date = (datetime.strptime(结束日期, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+            end_dt = datetime.strptime(结束日期, "%Y-%m-%d") + timedelta(days=1)
             sql += " AND [FinishedDate] < ?"
-            params.append(end_date)
+            params.append(end_dt.strftime("%Y-%m-%d"))
         sql += " ORDER BY [id]"
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -95,7 +95,7 @@ def get_options_from_db(field):
             try: conn.close()
             except: pass
 
-@router.get("/fullProcessInventorySTA", summary="全流程报工库存-锁体A车间")
+@router.get("/fullProcessInventorySTB", summary="全流程报工库存-锁体B车间")
 # @cache(expire=1800)
 async def get_data(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
@@ -110,7 +110,7 @@ async def get_data(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
 
-@router.get("/fullProcessInventorySTA/options", summary="STA下拉选项")
+@router.get("/fullProcessInventorySTB/options", summary="STB下拉选项")
 @cache(expire=72000)
 async def get_options(field: str = Query(...)):
     try:
@@ -154,9 +154,9 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
             sql += " AND [FinishedDate] >= ?"
             params.append(开始日期)
         if 结束日期:
-            end_date = (datetime.strptime(结束日期, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+            end_dt = datetime.strptime(结束日期, "%Y-%m-%d") + timedelta(days=1)
             sql += " AND [FinishedDate] < ?"
-            params.append(end_date)
+            params.append(end_dt.strftime("%Y-%m-%d"))
         sql += " GROUP BY [当前工序ID] ORDER BY [当前工序ID]"
         cursor.execute(sql, params)
         rows = cursor.fetchall()
@@ -166,7 +166,7 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
             try: conn.close()
             except: pass
 
-@router.get("/fullProcessInventorySTA/summary", summary="STA按当前工序ID汇总库存")
+@router.get("/fullProcessInventorySTB/summary", summary="STB按当前工序ID汇总库存")
 async def get_summary(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
     料品名称: Optional[str] = Query(None), 料品规格: Optional[str] = Query(None),
