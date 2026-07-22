@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+﻿from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 import pyodbc
 from datetime import datetime, timedelta
@@ -19,7 +19,7 @@ def get_db_connection():
     )
     return pyodbc.connect(conn_str)
 
-def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
+def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
     conn = None
     try:
         conn = get_db_connection()
@@ -44,9 +44,6 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
         if 料品规格:
             sql += " AND [料品规格] LIKE ?"
             params.append(f"%{料品规格}%")
-        if 生产车间:
-            sql += " AND [生产车间] = ?"
-            params.append(生产车间)
         if 当前工序ID:
             sql += " AND [当前工序ID] = ?"
             params.append(当前工序ID)
@@ -85,7 +82,7 @@ def get_options_from_db(field):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        col_map = {"生产车间": "生产车间", "料品名称": "料品名称", "料品规格": "料品规格", "当前工序ID": "当前工序ID", "下一道工序ID": "下一道工序ID"}
+        col_map = {"料品名称": "料品名称", "料品规格": "料品规格", "当前工序ID": "当前工序ID", "下一道工序ID": "下一道工序ID"}
         if field not in col_map:
             return []
         col = col_map[field]
@@ -104,12 +101,12 @@ def get_options_from_db(field):
 async def get_data(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
     料品名称: Optional[str] = Query(None), 料品规格: Optional[str] = Query(None),
-    生产车间: Optional[str] = Query(None), 当前工序ID: Optional[str] = Query(None),
+    当前工序ID: Optional[str] = Query(None),
     下一道工序ID: Optional[str] = Query(None),
     开始日期: Optional[str] = Query(None), 结束日期: Optional[str] = Query(None),
 ):
     try:
-        raw_data = get_data_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
+        raw_data = get_data_from_db(订单批号, 料品编码, 料品名称, 料品规格, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
         return {"status": "success", "data": raw_data, "total_count": len(raw_data), "timestamp": datetime.now().isoformat()}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
@@ -122,7 +119,7 @@ async def get_options(field: str = Query(...)):
     except Exception as exc:
         return {"status": "success", "data": []}
 
-def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 生产车间=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
+def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None, 料品规格=None, 当前工序ID=None, 下一道工序ID=None, 开始日期=None, 结束日期=None):
     conn = None
     try:
         conn = get_db_connection()
@@ -145,9 +142,6 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
         if 料品规格:
             sql += " AND [料品规格] LIKE ?"
             params.append(f"%{料品规格}%")
-        if 生产车间:
-            sql += " AND [生产车间] = ?"
-            params.append(生产车间)
         if 当前工序ID:
             sql += " AND [当前工序ID] = ?"
             params.append(当前工序ID)
@@ -178,12 +172,12 @@ def get_summary_from_db(订单批号=None, 料品编码=None, 料品名称=None,
 async def get_summary(
     订单批号: Optional[str] = Query(None), 料品编码: Optional[str] = Query(None),
     料品名称: Optional[str] = Query(None), 料品规格: Optional[str] = Query(None),
-    生产车间: Optional[str] = Query(None), 当前工序ID: Optional[str] = Query(None),
+    当前工序ID: Optional[str] = Query(None),
     下一道工序ID: Optional[str] = Query(None),
     开始日期: Optional[str] = Query(None), 结束日期: Optional[str] = Query(None),
 ):
     try:
-        data = get_summary_from_db(订单批号, 料品编码, 料品名称, 料品规格, 生产车间, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
+        data = get_summary_from_db(订单批号, 料品编码, 料品名称, 料品规格, 当前工序ID, 下一道工序ID, 开始日期, 结束日期)
         return {"status": "success", "data": data}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")

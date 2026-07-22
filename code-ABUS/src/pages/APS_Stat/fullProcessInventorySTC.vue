@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout :breadcrumbItems="breadcrumbItems">
     <div class="report-container">
       <div class="el-card is-always-shadow mb-4">
@@ -31,13 +31,6 @@
               </el-col>
             </el-row>
             <el-row :gutter="20">
-              <el-col :span="5">
-                <el-form-item label="生产车间">
-                  <el-select v-model="filters.生产车间" placeholder="选择生产车间" filterable clearable>
-                    <el-option v-for="o in workshopOptions" :key="o" :label="o" :value="o" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
               <el-col :span="5">
                 <el-form-item label="当前工序">
                   <el-select v-model="filters.当前工序ID" placeholder="选择工序" filterable clearable>
@@ -97,7 +90,6 @@
             <el-table-column prop="料品编码" label="料品编码" min-width="150" show-overflow-tooltip />
             <el-table-column prop="料品名称" label="料品名称" min-width="180" show-overflow-tooltip />
             <el-table-column prop="料品规格" label="规格型号" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="生产车间" label="生产车间" min-width="120" show-overflow-tooltip />
             <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
             <el-table-column prop="下一道工序ID" label="下一道工序ID" min-width="110" show-overflow-tooltip />
             <el-table-column prop="完成日期" label="完成日期" min-width="120" show-overflow-tooltip />
@@ -130,8 +122,8 @@ export default {
   data() {
     return {
       breadcrumbItems: ['报表页面', '全流程报工库存-锁体C车间'],
-      filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
-      workshopOptions: [], partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
+      filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
+      partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
       tableData: [], allData: [], loading: false,
       currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [],
       summaryData: []
@@ -154,12 +146,11 @@ export default {
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },
     async loadOptions() {
       try {
-        const fields = ['生产车间', '料品名称', '料品规格', '当前工序ID', '下一道工序ID']
+        const fields = ['料品名称', '料品规格', '当前工序ID', '下一道工序ID']
         const results = await Promise.all(fields.map(f => axios.get('/api/fullProcessInventorySTC/options', { params: { field: f } }).then(res => ({ f, d: res.data })).catch(() => ({ f, d: { data: [] } }))))
         for (const r of results) {
           const vals = (r.d.data || []).map(i => i.value)
-          if (r.f === '生产车间') this.workshopOptions = vals
-          else if (r.f === '料品名称') this.partNameOptions = vals
+          if (r.f === '料品名称') this.partNameOptions = vals
           else if (r.f === '料品规格') this.partSpecOptions = vals
           else if (r.f === '当前工序ID') this.processOptions = vals
           else if (r.f === '下一道工序ID') this.nextProcessOptions = vals
@@ -172,7 +163,6 @@ export default {
       if (this.filters.料品编码) params.料品编码 = this.filters.料品编码.trim()
       if (this.filters.part_name) params.料品名称 = this.filters.part_name.trim()
       if (this.filters.part_spec) params.料品规格 = this.filters.part_spec.trim()
-      if (this.filters.生产车间) params.生产车间 = this.filters.生产车间
       if (this.filters.当前工序ID) params.当前工序ID = this.filters.当前工序ID
       if (this.filters.下一道工序ID) params.下一道工序ID = this.filters.下一道工序ID
       if (this.filters.开始日期) params.开始日期 = this.filters.开始日期
@@ -202,7 +192,7 @@ export default {
     updateTableData() { const s = (this.currentPage - 1) * this.pageSize; this.tableData = this.allData.slice(s, s + this.pageSize) },
     handlePageChange(p) { this.currentPage = p; this.updateTableData() },
     handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.updateTableData() },
-    resetFilters() { this.filters = { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 生产车间: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' }; this.searchData() }
+    resetFilters() { this.filters = { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' }; this.searchData() }
   }
 }
 </script>
