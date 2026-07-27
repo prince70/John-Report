@@ -121,7 +121,7 @@ export default {
   components: { Layout },
   data() {
     return {
-      breadcrumbItems: ['报表页面', '全流程报工库存-锁梁车间'],
+      breadcrumbItems: ['全流程报工库存', '锁梁车间'],
       filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
       partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
       tableData: [], allData: [], loading: false,
@@ -137,10 +137,10 @@ export default {
   methods: {
     generateBreadcrumb(path) {
       try {
-        const find = (menus, p) => { for (const m of menus) { if (m.path === p) return m.name; if (m.children) for (const c of m.children) if (c.path === p) return [m.name, c.name] } return p.split('/').pop() }
+        const find = (menus, p) => { for (const m of menus) { if (m.path === p) return m.name; if (m.children) for (const c of m.children) if (c.path === p) return [m.name, c.name.replace(/^全流程报工库存-/, '')] } return p.split('/').pop() }
         const r = find(this.sidebarMenus, '/' + path.split('/').filter(p => p).join('/'))
         this.breadcrumbItems = Array.isArray(r) ? r : [r]
-      } catch { this.breadcrumbItems = ['报表页面', '全流程报工库存-锁梁车间'] }
+      } catch { this.breadcrumbItems = ['全流程报工库存', '锁梁车间'] }
     },
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },

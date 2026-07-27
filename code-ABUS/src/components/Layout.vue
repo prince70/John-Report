@@ -45,8 +45,10 @@ export default {
   methods: {
     handleMenusUpdated(menus) {
       this.sidebarMenus = menus;
-      // console.log('获取到的侧边栏菜单11111:', this.sidebarMenus);
-      eventBus.$emit('sidebar-Menus-Updated', this.sidebarMenus); // 触发事件
+      eventBus.$emit('sidebar-Menus-Updated', this.sidebarMenus);
+      this.$nextTick(() => {
+        eventBus.$emit('sidebar-Menus-Updated', this.sidebarMenus);
+      });
     }
   },
   props: {
