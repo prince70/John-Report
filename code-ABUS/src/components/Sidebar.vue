@@ -357,6 +357,68 @@ export default {
                   name: '超市多出的损耗数',
                   icon: require('../pages/photo/data.png'),
                   path: '/lockBodyOverage'
+                },
+                {
+                  name: '车间报工详情',
+                  icon: require('../pages/photo/data.png'),
+                  isExpanded: false,
+                  children: [
+                    {
+                      name: 'CNC报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/CNC'
+                    },
+                    {
+                      name: '包装车间报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Pack'
+                    },
+                    {
+                      name: '锁体A报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockA'
+                    },
+                    {
+                      name: '锁体B报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockB'
+                    },
+                    {
+                      name: '锁体C报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockC'
+                    },
+                    {
+                      name: '锁体D报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockD'
+                    },
+                    {
+                      name: '锁梁报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Suoliang'
+                    },
+                    {
+                      name: '开料车间报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Material'
+                    },
+                    {
+                      name: '装嵌报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Zhuangqian'
+                    },
+                    {
+                      name: '打磨-装配区报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Damo'
+                    },
+                    {
+                      name: '打磨-打磨区报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/DamoDM'
+                    }
+                  ]
                 }
               ]
             }
@@ -524,6 +586,68 @@ export default {
                   name: '超市多出的损耗数',
                   icon: require('../pages/photo/data.png'),
                   path: '/lockBodyOverage'
+                },
+                {
+                  name: '车间报工详情',
+                  icon: require('../pages/photo/data.png'),
+                  isExpanded: false,
+                  children: [
+                    {
+                      name: 'CNC报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/CNC'
+                    },
+                    {
+                      name: '包装车间报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Pack'
+                    },
+                    {
+                      name: '锁体A报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockA'
+                    },
+                    {
+                      name: '锁体B报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockB'
+                    },
+                    {
+                      name: '锁体C报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockC'
+                    },
+                    {
+                      name: '锁体D报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/LockD'
+                    },
+                    {
+                      name: '锁梁报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Suoliang'
+                    },
+                    {
+                      name: '开料车间报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Material'
+                    },
+                    {
+                      name: '装嵌报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Zhuangqian'
+                    },
+                    {
+                      name: '打磨-装配区报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/Damo'
+                    },
+                    {
+                      name: '打磨-打磨区报工详情',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/DamoDM'
+                    }
+                  ]
                 }
               ]
             }

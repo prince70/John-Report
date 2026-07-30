@@ -37,6 +37,17 @@ import OverStockQuantity from '../pages/APS_Stat/overStockQuantity.vue';
 import OfflineProcess from '../pages/APS_Stat/offlineProcess.vue';
 import LockCWorkProgress from '../pages/APS_Stat/lockCWorkProgress.vue';
 import LockBodyOverage from '../pages/APS_Stat/lockBodyOverage.vue';
+import WorkshopReportDetailCNC from '../pages/APS_Stat/workshopReportDetailCNC.vue';
+import WorkshopReportDetailPack from '../pages/APS_Stat/workshopReportDetailPack.vue';
+import WorkshopReportDetailLockB from '../pages/APS_Stat/workshopReportDetailLockB.vue';
+import WorkshopReportDetailLockC from '../pages/APS_Stat/workshopReportDetailLockC.vue';
+import WorkshopReportDetailLockD from '../pages/APS_Stat/workshopReportDetailLockD.vue';
+import WorkshopReportDetailLockA from '../pages/APS_Stat/workshopReportDetailLockA.vue';
+import WorkshopReportDetailSuoliang from '../pages/APS_Stat/workshopReportDetailSuoliang.vue';
+import WorkshopReportDetailMaterial from '../pages/APS_Stat/workshopReportDetailMaterial.vue';
+import WorkshopReportDetailZhuangqian from '../pages/APS_Stat/workshopReportDetailZhuangqian.vue';
+import WorkshopReportDetailDamo from '../pages/APS_Stat/workshopReportDetailDamo.vue';
+import WorkshopReportDetailDamoDM from '../pages/APS_Stat/workshopReportDetailDamoDM.vue';
 
 Vue.use(VueRouter);
 
@@ -264,6 +275,72 @@ const routes = [
     path: '/lockBodyOverage',
     name: 'LockBodyOverage',
     component: LockBodyOverage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/CNC',
+    name: 'WorkshopReportDetailCNC',
+    component: WorkshopReportDetailCNC,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/Pack',
+    name: 'WorkshopReportDetailPack',
+    component: WorkshopReportDetailPack,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/LockB',
+    name: 'WorkshopReportDetailLockB',
+    component: WorkshopReportDetailLockB,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/LockC',
+    name: 'WorkshopReportDetailLockC',
+    component: WorkshopReportDetailLockC,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/LockD',
+    name: 'WorkshopReportDetailLockD',
+    component: WorkshopReportDetailLockD,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/LockA',
+    name: 'WorkshopReportDetailLockA',
+    component: WorkshopReportDetailLockA,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/Suoliang',
+    name: 'WorkshopReportDetailSuoliang',
+    component: WorkshopReportDetailSuoliang,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/Material',
+    name: 'WorkshopReportDetailMaterial',
+    component: WorkshopReportDetailMaterial,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/Zhuangqian',
+    name: 'WorkshopReportDetailZhuangqian',
+    component: WorkshopReportDetailZhuangqian,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/Damo',
+    name: 'WorkshopReportDetailDamo',
+    component: WorkshopReportDetailDamo,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopReportDetail/DamoDM',
+    name: 'WorkshopReportDetailDamoDM',
+    component: WorkshopReportDetailDamoDM,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

@@ -49,6 +49,9 @@ from Abus_BigData_Cal.overStockQuantity import router as overStockQuantity_route
 from Abus_BigData_Cal.offlineProcess import router as offlineProcess_router
 from Abus_BigData_Cal.lockCWorkProgress import router as lockCWorkProgress_router
 from Abus_BigData_Cal.lockBodyOverage import router as lockBodyOverage_router
+from Abus_BigData_Cal.workshopReportDetail import router as workshopReportDetail_router
+from Abus_BigData_Cal.workshopReportDetailPack import router as workshopReportDetailPack_router
+from Abus_BigData_Cal.workshopReportDetailLock import router as workshopReportDetailLock_router
 app = FastAPI()
 
 # 初始化缓存 使用内存缓存而不是redis缓存
@@ -112,6 +115,9 @@ app.include_router(overStockQuantity_router)
 app.include_router(offlineProcess_router)
 app.include_router(lockCWorkProgress_router)
 app.include_router(lockBodyOverage_router)
+app.include_router(workshopReportDetail_router)
+app.include_router(workshopReportDetailPack_router)
+app.include_router(workshopReportDetailLock_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8092", "http://127.0.0.1:8092", "http://report.abushardware.com", "http://192.168.10.118:8092"], 
