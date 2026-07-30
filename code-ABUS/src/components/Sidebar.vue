@@ -25,7 +25,7 @@
                 <img :src="sub.icon" class="sub-icon" />
                 <span>{{ sub.name }}</span>
               </div>
-              <div v-if="!sub.hidden && sub.children" :key="subIndex">
+              <div v-if="!sub.hidden && sub.children && !sub.children.some(c => c.children)" :key="subIndex">
                 <div class="sub-item" :class="{ active: false }" @click.stop="toggleSubMenu(sub)">
                   <img :src="sub.icon" class="sub-icon" />
                   <span>{{ sub.name }}</span>
@@ -39,6 +39,42 @@
                       <img :src="child.icon" class="sub-icon" />
                       <span>{{ child.name }}</span>
                     </div>
+                  </div>
+                </transition>
+              </div>
+              <div v-if="!sub.hidden && sub.children && sub.children.some(c => c.children)" :key="subIndex">
+                <div class="sub-item" :class="{ active: false }" @click.stop="toggleSubMenu(sub)">
+                  <img :src="sub.icon" class="sub-icon" />
+                  <span>{{ sub.name }}</span>
+                  <img :src="sub.isExpanded ? arrowUp : arrowDown" class="arrow-icon" style="width:12px;height:12px;margin-left:auto;" />
+                </div>
+                <transition name="slide">
+                  <div v-if="sub.isExpanded" class="sub-menu" style="padding-left:16px;">
+                    <template v-for="(child, childIndex) in sub.children">
+                      <div v-if="!child.children" :key="childIndex"
+                        class="sub-item"
+                        :class="{ active: activeMenu === child.path }" @click.stop="changeMenu(child.path)">
+                        <img :src="child.icon" class="sub-icon" />
+                        <span>{{ child.name }}</span>
+                      </div>
+                      <div v-if="child.children" :key="childIndex">
+                        <div class="sub-item" @click.stop="toggleSubMenu(child)">
+                          <img :src="child.icon" class="sub-icon" />
+                          <span>{{ child.name }}</span>
+                          <img :src="child.isExpanded ? arrowUp : arrowDown" class="arrow-icon" style="width:12px;height:12px;margin-left:auto;" />
+                        </div>
+                        <transition name="slide">
+                          <div v-if="child.isExpanded" class="sub-menu" style="padding-left:16px;">
+                            <div v-for="(grandChild, gcIndex) in child.children" :key="gcIndex"
+                              class="sub-item"
+                              :class="{ active: activeMenu === grandChild.path }" @click.stop="changeMenu(grandChild.path)">
+                              <img :src="grandChild.icon" class="sub-icon" />
+                              <span>{{ grandChild.name }}</span>
+                            </div>
+                          </div>
+                        </transition>
+                      </div>
+                    </template>
                   </div>
                 </transition>
               </div>
@@ -167,146 +203,162 @@ export default {
           isExpanded: false,
           children: [
             {
-              name: '开料、锁体A全工序报工查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/fullProcessQuery',
-            },
-            {
-              name: '开料、锁体A首尾工序报工查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/report'
-            },
-            {
-              name: '全流程工序查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/reportTemp'
-            },
-            {
-                name: 'CISA库存表 ',
-                icon: require('../pages/photo/data.png'),
-                path: '/cisaInventory'
-            },
-            {
-                name: '装嵌未来8周需求明细',
-                icon: require('../pages/photo/data.png'),
-              path: '/assemblyFuture8Weeks'
-            },
-            {
-              name: '各车间欠料',
-              icon: require('../pages/photo/data.png'),
-              path: '/lackMaterial'
-            },
-            {
-              name: '外协欠料明细',
-              icon: require('../pages/photo/data.png'),
-              path: '/outsourceLackMaterial'
-            },
-            {
-              name: '工序规格码单价明细与统计',
-              icon: require('../pages/photo/data.png'),
-              path: '/processPriceStats'
-            },
-            {
-              name: '排产所有工序对应单价',
-              icon: require('../pages/photo/data.png'),
-              path: '/offlineProcess'
-            },
-            {
-              name: '全流程报工库存',
+              name: '单价',
               icon: require('../pages/photo/data.png'),
               isExpanded: false,
               children: [
                 {
-                  name: '锁体C分区域库存计算',
+                  name: '工序规格码单价明细与统计',
                   icon: require('../pages/photo/data.png'),
-                  path: '/lockBodyProcessStats'
+                  path: '/processPriceStats'
                 },
                 {
-                  name: '全流程报工库存-CNC锁体车间',
+                  name: '排产所有工序对应单价',
                   icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/CNC'
-                },
-                {
-                  name: '全流程报工库存-电子锁车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/DZS'
-                },
-                {
-                  name: '全流程报工库存-钥匙车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/KEY'
-                },
-                {
-                  name: '全流程报工库存-锁体A车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STA'
-                },
-                {
-                  name: '全流程报工库存-锁体B车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STB'
-                },
-                {
-                  name: '全流程报工库存-锁体C车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STC'
-                },
-                {
-                  name: '全流程报工库存-开料车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/KL'
-                },
-                {
-                  name: '全流程报工库存-锁梁车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/SL'
-                },
-                {
-                  name: '全流程报工库存-锁体D车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STD'
-                },
-                {
-                  name: '全流程报工库存-锁配件车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/SX'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-胆仔锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_DZSQ'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-功能锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_GNSQ'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-铝门锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_LMSQ'
-                },
-                {
-                  name: '全流程报工库存-打磨车间-装配区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/DM_ZPQ'
+                  path: '/offlineProcess'
                 }
               ]
             },
             {
-              name: '超库存数量',
+              name: '工序',
               icon: require('../pages/photo/data.png'),
-              path: '/overStockQuantity'
+              isExpanded: false,
+              children: [
+                {
+                  name: '全流程报工库存',
+                  icon: require('../pages/photo/data.png'),
+                  isExpanded: false,
+                  children: [
+                    {
+                      name: '锁体C分区域库存计算',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/lockBodyProcessStats'
+                    },
+                    {
+                      name: '全流程报工库存-CNC锁体车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/CNC'
+                    },
+                    {
+                      name: '全流程报工库存-电子锁车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/DZS'
+                    },
+                    {
+                      name: '全流程报工库存-钥匙车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/KEY'
+                    },
+                    {
+                      name: '全流程报工库存-锁体A车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STA'
+                    },
+                    {
+                      name: '全流程报工库存-锁体B车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STB'
+                    },
+                    {
+                      name: '全流程报工库存-锁体C车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STC'
+                    },
+                    {
+                      name: '全流程报工库存-开料车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/KL'
+                    },
+                    {
+                      name: '全流程报工库存-锁梁车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/SL'
+                    },
+                    {
+                      name: '全流程报工库存-锁体D车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STD'
+                    },
+                    {
+                      name: '全流程报工库存-锁配件车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/SX'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-胆仔锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_DZSQ'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-功能锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_GNSQ'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-铝门锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_LMSQ'
+                    },
+                    {
+                      name: '全流程报工库存-打磨车间-装配区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/DM_ZPQ'
+                    }
+                  ]
+                },
+                {
+                  name: '开料、锁体A全工序报工查询',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessQuery'
+                },
+                {
+                  name: '开料、锁体A首尾工序报工查询',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/report'
+                }
+              ]
             },
             {
-              name: '锁体C车间生产进度表',
+              name: '报工',
               icon: require('../pages/photo/data.png'),
-              path: '/lockCWorkProgress'
-            },
-            {
-              name: '超市多出的损耗数',
-              icon: require('../pages/photo/data.png'),
-              path: '/lockBodyOverage'
+              isExpanded: false,
+              children: [
+                {
+                  name: 'CISA库存表',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/cisaInventory'
+                },
+                {
+                  name: '装嵌未来8周需求明细',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/assemblyFuture8Weeks'
+                },
+                {
+                  name: '各车间欠料',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lackMaterial'
+                },
+                {
+                  name: '外协欠料明细',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/outsourceLackMaterial'
+                },
+                {
+                  name: '超库存数量',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/overStockQuantity'
+                },
+                {
+                  name: '锁体C车间生产进度表',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockCWorkProgress'
+                },
+                {
+                  name: '超市多出的损耗数',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockBodyOverage'
+                }
+              ]
             }
           ]
         }
@@ -318,146 +370,162 @@ export default {
           isExpanded: false,
           children: [
             {
-              name: '开料、锁体A全工序报工查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/fullProcessQuery'
-            },
-            {
-              name: '开料、锁体A首尾工序报工查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/report'
-            },
-            {
-              name: '全流程工序查询',
-              icon: require('../pages/photo/data.png'),
-              path: '/reportTemp'
-            },
-            {
-              name: 'CISA库存表 ',
-              icon: require('../pages/photo/data.png'),
-              path: '/cisaInventory'
-            },
-            {
-              name: '装嵌未来8周需求明细',
-              icon: require('../pages/photo/data.png'),
-              path: '/assemblyFuture8Weeks'
-            },
-            {
-              name: '各车间欠料',
-              icon: require('../pages/photo/data.png'),
-              path: '/lackMaterial'
-            },
-            {
-              name: '外协欠料明细',
-              icon: require('../pages/photo/data.png'),
-              path: '/outsourceLackMaterial'
-            },
-            {
-              name: '工序规格码单价明细与统计',
-              icon: require('../pages/photo/data.png'),
-              path: '/processPriceStats'
-            },
-            {
-              name: '排产所有工序对应单价',
-              icon: require('../pages/photo/data.png'),
-              path: '/offlineProcess'
-            },
-            {
-              name: '全流程报工库存',
+              name: '单价',
               icon: require('../pages/photo/data.png'),
               isExpanded: false,
               children: [
                 {
-                  name: '锁体C分区域库存计算',
+                  name: '工序规格码单价明细与统计',
                   icon: require('../pages/photo/data.png'),
-                  path: '/lockBodyProcessStats'
+                  path: '/processPriceStats'
                 },
                 {
-                  name: '全流程报工库存-CNC锁体车间',
+                  name: '排产所有工序对应单价',
                   icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/CNC'
-                },
-                {
-                  name: '全流程报工库存-电子锁车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/DZS'
-                },
-                {
-                  name: '全流程报工库存-钥匙车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/KEY'
-                },
-                {
-                  name: '全流程报工库存-锁体A车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STA'
-                },
-                {
-                  name: '全流程报工库存-锁体B车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STB'
-                },
-                {
-                  name: '全流程报工库存-锁体C车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STC'
-                },
-                {
-                  name: '全流程报工库存-开料车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/KL'
-                },
-                {
-                  name: '全流程报工库存-锁梁车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/SL'
-                },
-                {
-                  name: '全流程报工库存-锁体D车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/STD'
-                },
-                {
-                  name: '全流程报工库存-锁配件车间',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/SX'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-胆仔锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_DZSQ'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-功能锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_GNSQ'
-                },
-                {
-                  name: '全流程报工库存-装嵌车间-铝门锁区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/ZQ_LMSQ'
-                },
-                {
-                  name: '全流程报工库存-打磨车间-装配区',
-                  icon: require('../pages/photo/data.png'),
-                  path: '/fullProcessInventory/DM_ZPQ'
+                  path: '/offlineProcess'
                 }
               ]
             },
             {
-              name: '超库存数量',
+              name: '工序',
               icon: require('../pages/photo/data.png'),
-              path: '/overStockQuantity'
+              isExpanded: false,
+              children: [
+                {
+                  name: '全流程报工库存',
+                  icon: require('../pages/photo/data.png'),
+                  isExpanded: false,
+                  children: [
+                    {
+                      name: '锁体C分区域库存计算',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/lockBodyProcessStats'
+                    },
+                    {
+                      name: '全流程报工库存-CNC锁体车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/CNC'
+                    },
+                    {
+                      name: '全流程报工库存-电子锁车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/DZS'
+                    },
+                    {
+                      name: '全流程报工库存-钥匙车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/KEY'
+                    },
+                    {
+                      name: '全流程报工库存-锁体A车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STA'
+                    },
+                    {
+                      name: '全流程报工库存-锁体B车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STB'
+                    },
+                    {
+                      name: '全流程报工库存-锁体C车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STC'
+                    },
+                    {
+                      name: '全流程报工库存-开料车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/KL'
+                    },
+                    {
+                      name: '全流程报工库存-锁梁车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/SL'
+                    },
+                    {
+                      name: '全流程报工库存-锁体D车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/STD'
+                    },
+                    {
+                      name: '全流程报工库存-锁配件车间',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/SX'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-胆仔锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_DZSQ'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-功能锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_GNSQ'
+                    },
+                    {
+                      name: '全流程报工库存-装嵌车间-铝门锁区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/ZQ_LMSQ'
+                    },
+                    {
+                      name: '全流程报工库存-打磨车间-装配区',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/fullProcessInventory/DM_ZPQ'
+                    }
+                  ]
+                },
+                {
+                  name: '开料、锁体A全工序报工查询',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/fullProcessQuery'
+                },
+                {
+                  name: '开料、锁体A首尾工序报工查询',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/report'
+                }
+              ]
             },
             {
-              name: '锁体C车间生产进度表',
+              name: '报工',
               icon: require('../pages/photo/data.png'),
-              path: '/lockCWorkProgress'
-            },
-            {
-              name: '超市多出的损耗数',
-              icon: require('../pages/photo/data.png'),
-              path: '/lockBodyOverage'
+              isExpanded: false,
+              children: [
+                {
+                  name: 'CISA库存表',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/cisaInventory'
+                },
+                {
+                  name: '装嵌未来8周需求明细',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/assemblyFuture8Weeks'
+                },
+                {
+                  name: '各车间欠料',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lackMaterial'
+                },
+                {
+                  name: '外协欠料明细',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/outsourceLackMaterial'
+                },
+                {
+                  name: '超库存数量',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/overStockQuantity'
+                },
+                {
+                  name: '锁体C车间生产进度表',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockCWorkProgress'
+                },
+                {
+                  name: '超市多出的损耗数',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/lockBodyOverage'
+                }
+              ]
             }
           ]
         }
@@ -497,7 +565,17 @@ export default {
               hasActiveChild = true;
             }
             if (child.children) {
-              child.isExpanded = child.children.some(sub => sub.path === currentPath);
+              let hasActiveGrandChild = false;
+              child.children.forEach(sub => {
+                if (sub.path === currentPath) {
+                  hasActiveGrandChild = true;
+                }
+                if (sub.children) {
+                  sub.isExpanded = sub.children.some(gc => gc.path === currentPath);
+                  if (sub.isExpanded) hasActiveGrandChild = true;
+                }
+              });
+              child.isExpanded = hasActiveGrandChild;
               if (child.isExpanded) hasActiveChild = true;
             }
           });

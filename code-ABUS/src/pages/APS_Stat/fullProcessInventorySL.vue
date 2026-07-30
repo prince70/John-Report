@@ -82,24 +82,66 @@
         </div>
       </div>
 
+      <div class="el-card is-always-shadow mb-4">
+        <div class="el-card__body" style="padding: 10px 20px;">
+          <span style="font-size:14px;color:#606266;margin-right:12px;">分组方式：</span>
+          <el-radio-group v-model="groupMode" @change="onGroupModeChange">
+            <el-radio label="none">不分组</el-radio>
+            <el-radio label="order">按订单批号+当前工序ID分组</el-radio>
+            <el-radio label="spec">按规格型号+当前工序ID分组</el-radio>
+          </el-radio-group>
+        </div>
+      </div>
+
       <div class="el-card is-always-shadow table-card" v-loading="loading" element-loading-text="加载中...">
         <div class="el-card__body">
           <el-table v-if="tableData.length" :data="tableData" border stripe max-height="620" style="width: 100%" :header-cell-style="{ background: '#eef1f6', color: '#606266' }">
             <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod" />
-            <el-table-column prop="订单批号" label="订单批号" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="料品编码" label="料品编码" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="料品名称" label="料品名称" min-width="180" show-overflow-tooltip />
-            <el-table-column prop="料品规格" label="规格型号" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
-            <el-table-column prop="下一道工序ID" label="下一道工序ID" min-width="110" show-overflow-tooltip />
-            <el-table-column prop="完成日期" label="完成日期" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
-              <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
-            </el-table-column>
-            <el-table-column prop="库存" label="库存" min-width="100" align="right">
-              <template #default="scope"><span>{{ formatNumber(scope.row.库存) }}</span></template>
-            </el-table-column>
-            <el-table-column prop="备注" label="备注" min-width="120" show-overflow-tooltip />
+            <template v-if="groupMode === 'none'">
+              <el-table-column prop="订单批号" label="订单批号" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="料品编码" label="料品编码" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="料品名称" label="料品名称" min-width="180" show-overflow-tooltip />
+              <el-table-column prop="料品规格" label="规格型号" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="完成日期" label="完成日期" min-width="120" show-overflow-tooltip />
+              <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
+              <el-table-column prop="下一道工序ID" label="下一道工序ID" min-width="110" show-overflow-tooltip />
+              <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="库存" label="库存" min-width="100" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.库存) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="备注" label="备注" min-width="120" show-overflow-tooltip />
+              <el-table-column prop="产品系列" label="系列" min-width="100" show-overflow-tooltip />
+              <el-table-column prop="订单数量" label="订单数量" min-width="100" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.订单数量) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="确定交期" label="确定交期" min-width="120" show-overflow-tooltip />
+              <el-table-column prop="下一工序原始上线期" label="下一工序原始上线期" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="emp_name" label="报工人" min-width="100" show-overflow-tooltip />
+            </template>
+            <template v-else-if="groupMode === 'order'">
+              <el-table-column prop="订单批号" label="订单批号" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
+              <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="库存" label="库存" min-width="100" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.库存) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="记录数" label="记录数" min-width="80" align="center" />
+            </template>
+            <template v-else-if="groupMode === 'spec'">
+              <el-table-column prop="料品规格" label="规格型号" min-width="150" show-overflow-tooltip />
+              <el-table-column prop="当前工序ID" label="当前工序ID" min-width="100" show-overflow-tooltip />
+              <el-table-column prop="报工数量总和" label="报工数量总和" min-width="120" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.报工数量总和) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="库存" label="库存" min-width="100" align="right">
+                <template #default="scope"><span>{{ formatNumber(scope.row.库存) }}</span></template>
+              </el-table-column>
+              <el-table-column prop="记录数" label="记录数" min-width="80" align="center" />
+            </template>
           </el-table>
           <el-empty v-else description="暂无数据" />
           <div class="pagination-row">
@@ -121,12 +163,12 @@ export default {
   components: { Layout },
   data() {
     return {
-      breadcrumbItems: ['全流程报工库存', '锁梁车间'],
+      breadcrumbItems: ['工序', '全流程报工库存', '锁梁车间'],
       filters: { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' },
       partNameOptions: [], partSpecOptions: [], processOptions: [], nextProcessOptions: [],
       tableData: [], allData: [], loading: false,
       currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [],
-      summaryData: []
+      summaryData: [], groupMode: 'none', groupedData: []
     }
   },
   created() {
@@ -137,10 +179,11 @@ export default {
   methods: {
     generateBreadcrumb(path) {
       try {
-        const find = (menus, p) => { for (const m of menus) { if (m.path === p) return m.name; if (m.children) for (const c of m.children) if (c.path === p) return [m.name, c.name.replace(/^全流程报工库存-/, '')] } return p.split('/').pop() }
+        const nameMap = { CNC: 'CNC锁体车间', DZS: '电子锁车间', KEY: '钥匙车间', STA: '锁体A车间', STB: '锁体B车间', STC: '锁体C车间', KL: '开料车间', SL: '锁梁车间', STD: '锁体D车间', SX: '锁配件车间', ZQ_DZSQ: '装嵌车间-胆仔锁区', ZQ_GNSQ: '装嵌车间-功能锁区', ZQ_LMSQ: '装嵌车间-铝门锁区', DM_ZPQ: '打磨车间-装配区' }
+        const find = (menus, p) => { for (const m of menus) { for (const s of (m.children || [])) { for (const gc of (s.children || [])) { for (const c of (gc.children || [])) { if (c.path === p) return [s.name, gc.name, c.name.replace(/^全流程报工库存-/, '')] } if (gc.path === p) return [s.name, gc.name] } } } const seg = p.split('/').pop(); return ['工序', '全流程报工库存', nameMap[seg] || seg] }
         const r = find(this.sidebarMenus, '/' + path.split('/').filter(p => p).join('/'))
         this.breadcrumbItems = Array.isArray(r) ? r : [r]
-      } catch { this.breadcrumbItems = ['全流程报工库存', '锁梁车间'] }
+      } catch { this.breadcrumbItems = ['工序', '全流程报工库存', '锁梁车间'] }
     },
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },
@@ -177,7 +220,7 @@ export default {
           axios.get('/api/fullProcessInventorySL', { params }),
           axios.get('/api/fullProcessInventorySL/summary', { params })
         ])
-        if (dataRes.data?.status === 'success') { this.allData = dataRes.data.data || []; this.total = dataRes.data.total_count || this.allData.length; this.updateTableData() }
+        if (dataRes.data?.status === 'success') { this.allData = dataRes.data.data || []; this.applyGrouping(); this.total = (this.groupMode === 'none' ? this.allData : this.groupedData).length; this.updateTableData() }
         else this.$message.error('数据获取失败')
         if (summaryRes.data?.status === 'success') {
           const list = summaryRes.data.data || []
@@ -188,11 +231,47 @@ export default {
         }
       } catch { this.$message.error('数据加载失败') } finally { this.loading = false }
     },
-    updateTableData() { const s = (this.currentPage - 1) * this.pageSize; this.tableData = this.allData.slice(s, s + this.pageSize) },
+    updateTableData() {
+      const source = this.groupMode === 'none' ? this.allData : this.groupedData
+      this.total = source.length
+      const s = (this.currentPage - 1) * this.pageSize
+      this.tableData = source.slice(s, s + this.pageSize)
+    },
+    onGroupModeChange() {
+      this.applyGrouping()
+      this.currentPage = 1
+      this.updateTableData()
+    },
+    applyGrouping() {
+      if (this.groupMode === 'none') { this.groupedData = []; return }
+      const map = new Map()
+      for (const row of this.allData) {
+        const key = this.groupMode === 'order'
+          ? `${row.订单批号}||${row.当前工序ID}`
+          : `${row.料品规格}||${row.当前工序ID}`
+        if (map.has(key)) {
+          const g = map.get(key)
+          g.报工数量总和 = Number(g.报工数量总和 || 0) + Number(row.报工数量总和 || 0)
+          g.库存 = Number(g.库存 || 0) + Number(row.库存 || 0)
+          g.记录数 += 1
+        } else {
+          map.set(key, {
+            订单批号: row.订单批号,
+            料品规格: row.料品规格,
+            当前工序ID: row.当前工序ID,
+            报工数量总和: Number(row.报工数量总和 || 0),
+            库存: Number(row.库存 || 0),
+            记录数: 1
+          })
+        }
+      }
+      this.groupedData = Array.from(map.values())
+    },
     handlePageChange(p) { this.currentPage = p; this.updateTableData() },
     handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.updateTableData() },
     resetFilters() {
       this.filters = { 订单批号: '', 料品编码: '', part_name: '', part_spec: '', 当前工序ID: '', 下一道工序ID: '', 开始日期: '', 结束日期: '' }
+      this.groupMode = 'none'
       this.searchData()
     }
   }

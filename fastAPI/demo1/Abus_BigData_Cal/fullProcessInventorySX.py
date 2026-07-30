@@ -25,8 +25,11 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = f"""
-        SELECT [id], [订单批号], [料品编码], [料品名称], [料品规格],
-               [生产车间], [当前工序ID], [下一道工序ID], [报工数量总和], [库存], [备注], 
+        SELECT [id], [订单批号], [料品编码], [料品名称], [料品规格], [产品系列],
+               [生产车间], [当前工序ID], [下一道工序ID], [订单数量],
+               CONVERT(VARCHAR(10), [确定交期], 120) AS [确定交期],
+               CONVERT(VARCHAR(10), [下一工序原始上线期], 120) AS [下一工序原始上线期],
+               [报工数量总和], [库存], [备注], [emp_name],
                CONVERT(VARCHAR(10), [FinishedDate], 120) AS [完成日期]
         FROM [APS_SUO].[dbo].[{TABLE_NAME}]
         WHERE 1=1
@@ -66,11 +69,14 @@ def get_data_from_db(订单批号=None, 料品编码=None, 料品名称=None, �
         rows = cursor.fetchall()
         return [{
             "id": row[0], "订单批号": row[1] or "", "料品编码": row[2] or "",
-            "料品名称": row[3] or "", "料品规格": row[4] or "",
-            "生产车间": row[5] or "", "当前工序ID": row[6] or "",
-            "下一道工序ID": row[7] or "", "报工数量总和": float(row[8]) if row[8] else 0,
-            "库存": float(row[9]) if row[9] else 0, "备注": row[10] or "",
-            "完成日期": row[11] or "",
+            "料品名称": row[3] or "", "料品规格": row[4] or "", "产品系列": row[5] or "",
+            "生产车间": row[6] or "", "当前工序ID": row[7] or "",
+            "下一道工序ID": row[8] or "", "订单数量": float(row[9]) if row[9] else 0,
+            "确定交期": row[10] or "", "下一工序原始上线期": row[11] or "",
+            "报工数量总和": float(row[12]) if row[12] else 0,
+            "库存": float(row[13]) if row[13] else 0, "备注": row[14] or "",
+            "emp_name": row[15] or "",
+            "完成日期": row[16] or "",
         } for row in rows]
     finally:
         if conn:
