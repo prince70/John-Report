@@ -419,6 +419,11 @@ export default {
                       path: '/workshopReportDetail/DamoDM'
                     }
                   ]
+                },
+                {
+                  name: '车间实时库存',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/workshopRealTimeInventory'
                 }
               ]
             }
@@ -648,6 +653,11 @@ export default {
                       path: '/workshopReportDetail/DamoDM'
                     }
                   ]
+                },
+                {
+                  name: '车间实时库存',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/workshopRealTimeInventory'
                 }
               ]
             }

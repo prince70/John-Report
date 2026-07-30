@@ -48,6 +48,7 @@ import WorkshopReportDetailMaterial from '../pages/APS_Stat/workshopReportDetail
 import WorkshopReportDetailZhuangqian from '../pages/APS_Stat/workshopReportDetailZhuangqian.vue';
 import WorkshopReportDetailDamo from '../pages/APS_Stat/workshopReportDetailDamo.vue';
 import WorkshopReportDetailDamoDM from '../pages/APS_Stat/workshopReportDetailDamoDM.vue';
+import WorkshopRealTimeInventory from '../pages/APS_Stat/workshopRealTimeInventory.vue';
 
 Vue.use(VueRouter);
 
@@ -341,6 +342,12 @@ const routes = [
     path: '/workshopReportDetail/DamoDM',
     name: 'WorkshopReportDetailDamoDM',
     component: WorkshopReportDetailDamoDM,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/workshopRealTimeInventory',
+    name: 'WorkshopRealTimeInventory',
+    component: WorkshopRealTimeInventory,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由
