@@ -424,6 +424,11 @@ export default {
                   name: '车间实时库存',
                   icon: require('../pages/photo/data.png'),
                   path: '/workshopRealTimeInventory'
+                },
+                {
+                  name: '成品减单历史记录',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/finishedProductOrderReductionHistory'
                 }
               ]
             }
@@ -658,6 +663,11 @@ export default {
                   name: '车间实时库存',
                   icon: require('../pages/photo/data.png'),
                   path: '/workshopRealTimeInventory'
+                },
+                {
+                  name: '成品减单历史记录',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/finishedProductOrderReductionHistory'
                 }
               ]
             }
