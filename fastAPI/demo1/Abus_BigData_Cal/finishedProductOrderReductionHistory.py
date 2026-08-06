@@ -26,10 +26,12 @@ def get_data_from_db(规格型号=None, 订单批号=None):
         SELECT 料品编码, b.Name AS 系列, b.Description as 规格型号,
                订单批号, c.RequiredAvailableDate as 确定交期,
                c.QtyOrdered as 原订单数量,
-               新值 as 减单数量, 修改时间 as 减单时间
+               新值 as 减单数量, 修改时间 as 减单时间,
+               v.库存 as 即时库存
         FROM [APS_SUO].[dbo].[pandian_change_log] a
         left join item b on a.料品编码 = b.ExternalId
         left join SalesOrder c on a.订单批号 = c.ExternalId
+        left join [v_库存汇总] v on a.料品编码 = v.item_no
         WHERE 修改时间 > '2026-08-03' AND 料品编码 like '1%'
         """
         params = []

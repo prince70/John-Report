@@ -41,6 +41,9 @@
             <el-table-column prop="确定交期" label="确定交期" min-width="120" show-overflow-tooltip />
             <el-table-column prop="原订单数量" label="原订单数量" min-width="110" align="right" />
             <el-table-column prop="减单数量" label="减单数量" min-width="100" align="right" />
+            <el-table-column prop="即时库存" label="即时库存" min-width="100" align="right">
+              <template #default="scope"><span>{{ formatNumber(scope.row.即时库存) }}</span></template>
+            </el-table-column>
             <el-table-column prop="减单时间" label="减单时间" min-width="160" show-overflow-tooltip />
           </el-table>
           <el-empty v-else description="暂无数据" />
@@ -76,6 +79,7 @@ export default {
   watch: { $route(v) { this.generateBreadcrumb(v.path) } },
   methods: {
     generateBreadcrumb() { this.breadcrumbItems = ['报工', '成品减单历史记录'] },
+    formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
     indexMethod(i) { return (this.currentPage - 1) * this.pageSize + i + 1 },
     async searchData() {
       this.loading = true; this.currentPage = 1

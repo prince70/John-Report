@@ -51,13 +51,17 @@ def build_material(rows):
             "是否核对": row[0] or "", "序列号": row[2] or "", "生产车间": row[3] or "",
             "工单编号": row[4] or "", "工单状态": row[5] or "", "订单批号": row[6] or "",
             "订单数量": float(row[7]) if row[7] else 0, "料品编码": row[10] or "",
-            "生产线编号": row[11] or "", "规格型号": row[12] or "", "报工人": row[13] or "",
-            "工单数量": float(row[14]) if row[14] else 0, "报工数量": float(row[15]) if row[15] else 0,
-            "报废数量": float(row[16]) if row[16] else 0, "返修数量": float(row[17]) if row[17] else 0,
+            "生产线编号": row[11] or "", "生产线描述": row[12] or "",
+            "规格型号": row[13] or "", "成品料品名称": row[14] or "",
+            "成品料品规格": row[15] or "",
+            "报工人": row[16] or "", "工单数量": float(row[17]) if row[17] else 0,
+            "报工数量": float(row[18]) if row[18] else 0,
+            "报废数量": float(row[19]) if row[19] else 0,
+            "返修数量": float(row[20]) if row[20] else 0,
             "车间提供": 理论产能,
-            "时间": round((float(row[15] or 0) + float(row[17] or 0) + float(row[16] or 0)) / 理论产能, 2) if 理论产能 != 0 else None,
-            "开工时间": str(row[18]) if row[18] else "", "完工时间": str(row[19]) if row[19] else "",
-            "用料规格": row[20] or "",
+            "时间": round((float(row[18] or 0) + float(row[20] or 0) + float(row[19] or 0)) / 理论产能, 2) if 理论产能 != 0 else None,
+            "开工时间": str(row[21]) if row[21] else "", "完工时间": str(row[22]) if row[22] else "",
+            "用料规格": row[23] or "",
         })
     return result
 
@@ -250,7 +254,11 @@ select a.isCheck, a.iNo, b._Identify, b.生产车间, a.JobExternalId as 工单�
 a.OrderNumber as 订单批号, b.订单数量,
 (60*pr.QtyPerCycle) as 理论产能,
 CAST((isnull(a.EachFinishedQty,0)+isnull(a.repairQty,0)+isnull(a.scrapQty,0))/(60*pr.QtyPerCycle) AS DECIMAL(18,1)) as 理论工时,
-a.ItemExternalId as 料品编码, a.ResName as 生产线编号, a.ProductDescription as 规格型号,
+a.ItemExternalId as 料品编码, a.ResName as 生产线编号,
+rc.Description as 生产线描述,
+a.ProductDescription as 规格型号,
+c.part_name as 成品料品名称,
+c.part_spec as 成品料品规格,
 a.emp_name as 报工人, b.计划产量 as 工单数量, a.EachFinishedQty as 报工数量,
 a.scrapQty as 报废数量, a.repairQty as 返修数量,
 a.StartDate as 开工时间, a.FinishedDate as 完工时间, b.general_name
@@ -258,6 +266,8 @@ from APS_FinishedQty_ST a
 join 派工单 b on a.JobExternalId = b.工单编号
 left join APS.APS_SUO.dbo.ProductRules pr
     on a.ResName = pr.ResourceExternalId and a.ItemExternalId = pr.ProductItemExternalId
+left join [V_销售订单] c on b.订单批号 = c.sheet_lot
+left join APS.APS_SUO.dbo.Resource rc on a.ResName = rc.ExternalId
 where isnull(a.EachFinishedQty,0) > 0 and b.生产车间 = '开料车间'
 and a.FinishedDate between ? and ?
 """
@@ -450,7 +460,7 @@ def _query_workshop(sql, build_fn, start, end, 序列号, 姓名, 订单批号):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
 
-def _query_material(sql, build_fn, start, end, 序列号, 姓名, 工单编号):
+def _query_material(sql, build_fn, start, end, 序列号, 姓名, 工单编号, 生产线编号=None, 生产线描述=None):
     try:
         extra = ""
         params = [start, end]
@@ -463,12 +473,31 @@ def _query_material(sql, build_fn, start, end, 序列号, 姓名, 工单编号):
         if 工单编号:
             extra += " AND a.JobExternalId LIKE ?"
             params.append(f"%{工单编号}%")
+        if 生产线编号:
+            extra += " AND a.ResName LIKE ?"
+            params.append(f"%{生产线编号}%")
+        if 生产线描述:
+            extra += " AND rc.Description LIKE ?"
+            params.append(f"%{生产线描述}%")
         final_sql = sql + extra + " ORDER BY b.订单批号"
         rows = fetch_rows(final_sql, params)
         data = build_fn(rows)
         return {"status": "success", "data": data, "total_count": len(data)}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
+
+def _get_material_options(field):
+    try:
+        if field == "生产线编号":
+            sql = "SELECT DISTINCT a.ResName FROM APS_FinishedQty_ST a JOIN 派工单 b ON a.JobExternalId = b.工单编号 WHERE isnull(a.EachFinishedQty,0) > 0 AND b.生产车间 = '开料车间' AND a.ResName IS NOT NULL AND a.ResName != '' ORDER BY a.ResName"
+        elif field == "生产线描述":
+            sql = "SELECT DISTINCT rc.Description FROM APS_FinishedQty_ST a JOIN 派工单 b ON a.JobExternalId = b.工单编号 LEFT JOIN APS.APS_SUO.dbo.Resource rc ON a.ResName = rc.ExternalId WHERE isnull(a.EachFinishedQty,0) > 0 AND b.生产车间 = '开料车间' AND rc.Description IS NOT NULL AND rc.Description != '' ORDER BY rc.Description"
+        else:
+            return []
+        rows = fetch_rows(sql, [])
+        return [str(row[0]) for row in rows]
+    except:
+        return []
 
 @router.get("/workshopReportDetail/LockB", summary="锁体B报工详情")
 async def lock_b(start: str = Query(...), end: str = Query(...), 序列号: Optional[str] = None, 姓名: Optional[str] = None, 订单批号: Optional[str] = None):
@@ -491,8 +520,12 @@ async def suoliang(start: str = Query(...), end: str = Query(...), 序列号: Op
     return _query_workshop(SQL_SUOLIANG, build_suoliang, start, end, 序列号, 姓名, 订单批号)
 
 @router.get("/workshopReportDetail/Material", summary="开料车间报工详情")
-async def material(start: str = Query(...), end: str = Query(...), 工单编号: Optional[str] = None, 序列号: Optional[str] = None, 姓名: Optional[str] = None):
-    return _query_material(SQL_MATERIAL, build_material, start, end, 序列号, 姓名, 工单编号)
+async def material(start: str = Query(...), end: str = Query(...), 工单编号: Optional[str] = None, 序列号: Optional[str] = None, 姓名: Optional[str] = None, 生产线编号: Optional[str] = None, 生产线描述: Optional[str] = None):
+    return _query_material(SQL_MATERIAL, build_material, start, end, 序列号, 姓名, 工单编号, 生产线编号, 生产线描述)
+
+@router.get("/workshopReportDetail/Material/options", summary="开料车间下拉选项")
+async def material_options(field: str = Query(...)):
+    return {"status": "success", "data": _get_material_options(field)}
 
 @router.get("/workshopReportDetail/Zhuangqian", summary="装嵌报工详情")
 async def zhuangqian(start: str = Query(...), end: str = Query(...), 序列号: Optional[str] = None, 姓名: Optional[str] = None, 工单批号: Optional[str] = None, 锁类分区: Optional[str] = None, 含TSA: bool = False):

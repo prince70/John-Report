@@ -6,8 +6,29 @@
           <el-form @submit.native.prevent="searchData" label-width="100px">
             <el-row :gutter="20">
               <el-col :span="6">
+                <el-form-item label="产品名称">
+                  <el-select v-model="filters.产品名称" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
+                    <el-option v-for="item in 产品名称列表" :key="item" :label="item" :value="item" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="系列">
+                  <el-select v-model="filters.系列" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
+                    <el-option v-for="item in 系列列表" :key="item" :label="item" :value="item" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="产品规格">
+                  <el-select v-model="filters.产品规格" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
+                    <el-option v-for="item in 产品规格列表" :key="item" :label="item" :value="item" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
                 <el-form-item label="存放位置">
-                  <el-select v-model="filters.存放位置" placeholder="全部" clearable filterable style="width:100%">
+                  <el-select v-model="filters.存放位置" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
                     <el-option v-for="item in 存放位置列表" :key="item" :label="item" :value="item" />
                   </el-select>
                 </el-form-item>
@@ -16,7 +37,7 @@
             <div class="form-actions">
               <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
               <el-button @click="resetFilters">重置</el-button>
-              <el-button type="success" @click="exportData" :disabled="!tableData.length">导出</el-button>
+              <el-button type="success" @click="exportData" :disabled="!allData.length">导出</el-button>
             </div>
           </el-form>
         </div>
@@ -24,8 +45,7 @@
 
       <div v-if="hasSearched" class="el-card is-always-shadow mb-4 summary-card">
         <div class="el-card__body summary-row">
-          <span>更新时间: <b>{{ update_time }}</b></span>
-          <span style="margin-left:30px">总库存: <b>{{ formatNumber(total_inventory) }}</b></span>
+          <span>总库存: <b>{{ formatNumber(total_inventory) }}</b></span>
           <span style="margin-left:30px">总条数: <b>{{ total }}</b></span>
         </div>
       </div>
@@ -35,6 +55,7 @@
           <el-table v-if="tableData.length" :data="tableData" border stripe max-height="620" style="width:100%" :header-cell-style="{ background: '#eef1f6', color: '#606266' }">
             <el-table-column prop="item_no" label="item_no" min-width="150" show-overflow-tooltip />
             <el-table-column prop="产品名称" label="产品名称" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="系列" label="系列" min-width="120" show-overflow-tooltip />
             <el-table-column prop="产品规格" label="产品规格" min-width="150" show-overflow-tooltip />
             <el-table-column prop="库存" label="库存" min-width="100" align="right">
               <template #default="scope"><span>{{ formatNumber(scope.row.库存) }}</span></template>
@@ -64,32 +85,45 @@ export default {
   data() {
     return {
       breadcrumbItems: ['报工', '车间实时库存'],
-      filters: { 存放位置: '' },
+      filters: { 产品名称: '', 系列: '', 产品规格: '', 存放位置: '' },
       tableData: [], allData: [], loading: false, hasSearched: false,
-      currentPage: 1, pageSize: 100, total: 0, total_inventory: 0, update_time: '',
-      存放位置列表: [], sidebarMenus: []
+      currentPage: 1, pageSize: 100, total: 0, total_inventory: 0,
+      产品名称列表: [], 系列列表: [], 产品规格列表: [], 存放位置列表: [],
+      sidebarMenus: []
     }
   },
   created() {
-    eventBus.$on('sidebar-Menus-Updated', (m) => { this.sidebarMenus = m; this.generateBreadcrumb(this.$route.path) });
+    eventBus.$on('sidebar-Menus-Updated', (m) => { this.sidebarMenus = m; this.generateBreadcrumb(this.$route.path) })
+    this.loadOptions()
     this.searchData()
   },
   watch: { $route(v) { this.generateBreadcrumb(v.path) } },
   methods: {
     generateBreadcrumb() { this.breadcrumbItems = ['报工', '车间实时库存'] },
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
+    async loadOptions() {
+      try {
+        const fields = ['产品名称', '系列', '产品规格', '存放位置']
+        const results = await Promise.all(fields.map(f => axios.get('/api/workshopRealTimeInventory/options', { params: { field: f } })))
+        this.产品名称列表 = results[0].data?.data || []
+        this.系列列表 = results[1].data?.data || []
+        this.产品规格列表 = results[2].data?.data || []
+        this.存放位置列表 = results[3].data?.data || []
+      } catch {}
+    },
     async searchData() {
       this.loading = true; this.currentPage = 1; this.hasSearched = true
       try {
         const params = {}
+        if (this.filters.产品名称) params.产品名称 = this.filters.产品名称.trim()
+        if (this.filters.系列) params.系列 = this.filters.系列.trim()
+        if (this.filters.产品规格) params.产品规格 = this.filters.产品规格.trim()
         if (this.filters.存放位置) params.存放位置 = this.filters.存放位置.trim()
         const res = await axios.get('/api/workshopRealTimeInventory', { params })
         if (res.data?.status === 'success') {
           this.allData = res.data.data || []
-          this.total = this.allData.length
-          this.total_inventory = this.allData.reduce((sum, r) => sum + (r.库存 || 0), 0)
-          this.update_time = res.data.update_time || ''
-          this.存放位置列表 = res.data.存放位置列表 || []
+          this.total = res.data.total_count || this.allData.length
+          this.total_inventory = res.data.total_inventory || 0
           this.updateTableData()
         } else this.$message.error('数据获取失败')
       } catch { this.$message.error('数据加载失败') } finally { this.loading = false }
@@ -98,19 +132,19 @@ export default {
     handlePageChange(p) { this.currentPage = p; this.updateTableData() },
     handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.updateTableData() },
     resetFilters() {
-      this.filters = { 存放位置: '' }
+      this.filters = { 产品名称: '', 系列: '', 产品规格: '', 存放位置: '' }
       this.currentPage = 1
       this.searchData()
     },
     exportData() {
       const data = this.allData.map(r => ({
-        'item_no': r.item_no, '产品名称': r.产品名称, '产品规格': r.产品规格,
+        'item_no': r.item_no, '产品名称': r.产品名称, '系列': r.系列, '产品规格': r.产品规格,
         '库存': r.库存, '存放位置': r.存放位置, '备注': r.备注
       }))
       const ws = XLSX.utils.json_to_sheet(data)
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, '车间实时库存')
-      XLSX.writeFile(wb, `车间实时库存_${this.update_time}.xlsx`)
+      XLSX.writeFile(wb, `车间实时库存.xlsx`)
     }
   }
 }

@@ -32,6 +32,20 @@
                   <el-input v-model="filters.姓名" placeholder="请输入姓名" clearable @keyup.enter.native="searchData" />
                 </el-form-item>
               </el-col>
+              <el-col :span="6">
+                <el-form-item label="生产线编号">
+                  <el-select v-model="filters.生产线编号" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
+                    <el-option v-for="item in 生产线编号列表" :key="item" :label="item" :value="item" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="生产线描述">
+                  <el-select v-model="filters.生产线描述" placeholder="请输入或选择" filterable allow-create clearable style="width:100%">
+                    <el-option v-for="item in 生产线描述列表" :key="item" :label="item" :value="item" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
             </el-row>
             <div class="form-actions">
               <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
@@ -59,7 +73,10 @@
             </el-table-column>
             <el-table-column prop="料品编码" label="料品编码" min-width="150" show-overflow-tooltip />
             <el-table-column prop="生产线编号" label="生产线编号" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="生产线描述" label="生产线描述" min-width="150" show-overflow-tooltip />
             <el-table-column prop="规格型号" label="规格型号" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="成品料品名称" label="成品料品名称" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="成品料品规格" label="成品料品规格" min-width="150" show-overflow-tooltip />
             <el-table-column prop="报工人" label="报工人" min-width="100" show-overflow-tooltip />
             <el-table-column prop="工单数量" label="工单数量" min-width="100" align="right">
               <template #default="scope"><span>{{ formatNumber(scope.row.工单数量) }}</span></template>
@@ -107,16 +124,30 @@ export default {
     const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
     return {
       breadcrumbItems: ['报工', '车间报工详情', '开料车间报工详情'],
-      filters: { start: fmt(yesterday), end: fmt(today), 工单编号: '', 序列号: '', 姓名: '' },
+      filters: { start: fmt(yesterday), end: fmt(today), 工单编号: '', 序列号: '', 姓名: '', 生产线编号: '', 生产线描述: '' },
       tableData: [], allData: [], loading: false, hasSearched: false,
-      currentPage: 1, pageSize: 100, total: 0, sidebarMenus: []
+      currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [],
+      生产线编号列表: [], 生产线描述列表: []
     }
   },
-  created() { eventBus.$on('sidebar-Menus-Updated', (m) => { this.sidebarMenus = m; this.generateBreadcrumb(this.$route.path) }) },
+  created() {
+    eventBus.$on('sidebar-Menus-Updated', (m) => { this.sidebarMenus = m; this.generateBreadcrumb(this.$route.path) })
+    this.loadOptions()
+  },
   watch: { $route(v) { this.generateBreadcrumb(v.path) } },
   methods: {
     generateBreadcrumb() { this.breadcrumbItems = ['报工', '车间报工详情', '开料车间报工详情'] },
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
+    async loadOptions() {
+      try {
+        const [res1, res2] = await Promise.all([
+          axios.get('/api/workshopReportDetail/Material/options', { params: { field: '生产线编号' } }),
+          axios.get('/api/workshopReportDetail/Material/options', { params: { field: '生产线描述' } })
+        ])
+        if (res1.data?.status === 'success') this.生产线编号列表 = (res1.data.data || []).map(i => i)
+        if (res2.data?.status === 'success') this.生产线描述列表 = (res2.data.data || []).map(i => i)
+      } catch {}
+    },
     async searchData() {
       if (!this.filters.start || !this.filters.end) { this.$message.warning('请选择时间范围'); return }
       this.loading = true; this.currentPage = 1; this.hasSearched = true
@@ -125,6 +156,8 @@ export default {
         if (this.filters.工单编号) params.工单编号 = this.filters.工单编号.trim()
         if (this.filters.序列号) params.序列号 = this.filters.序列号.trim()
         if (this.filters.姓名) params.姓名 = this.filters.姓名.trim()
+        if (this.filters.生产线编号) params.生产线编号 = this.filters.生产线编号.trim()
+        if (this.filters.生产线描述) params.生产线描述 = this.filters.生产线描述.trim()
         const res = await axios.get('/api/workshopReportDetail/Material', { params })
         if (res.data?.status === 'success') { this.allData = res.data.data || []; this.total = res.data.total_count || this.allData.length; this.updateTableData() }
         else this.$message.error('数据获取失败')
@@ -137,7 +170,7 @@ export default {
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1)
       const today = new Date()
       const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-      this.filters = { start: fmt(yesterday), end: fmt(today), 工单编号: '', 序列号: '', 姓名: '' }
+      this.filters = { start: fmt(yesterday), end: fmt(today), 工单编号: '', 序列号: '', 姓名: '', 生产线编号: '', 生产线描述: '' }
       this.hasSearched = false; this.tableData = []; this.allData = []; this.total = 0
     }
   }
