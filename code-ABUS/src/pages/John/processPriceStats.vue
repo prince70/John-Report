@@ -5,10 +5,10 @@
         <el-form @submit.native.prevent="searchData" label-width="100px">
           <el-row :gutter="20">
             <el-col :span="8">
-              <el-form-item label="部门">
+              <el-form-item label="车间">
                 <el-select
                   v-model="filters.部门"
-                  placeholder="选择部门"
+                  placeholder="选择车间"
                   filterable
                   clearable
                 >
@@ -47,9 +47,16 @@
       </div>
     </div>
 
+    <div class="el-card is-always-shadow mb-4 summary-card">
+      <div class="el-card__body summary-row">
+        <span>工序个数: <b>{{ statsData.length }}</b>个</span>
+        <span style="margin-left:30px">单价个数: <b>{{ total }}</b>个</span>
+      </div>
+    </div>
+
     <div v-if="statsData.length" class="el-card is-always-shadow mb-4">
       <div class="el-card__body">
-        <div class="stats-title">统计（按部门+工序名称）</div>
+        <div class="stats-title">统计（按车间+工序名称）</div>
         <el-table
           :data="paginatedStats"
           border
@@ -58,7 +65,7 @@
           :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
         >
           <el-table-column type="index" label="序号" width="60" align="center" :index="statsIndex" />
-          <el-table-column prop="部门" label="部门" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="部门" label="车间" min-width="150" show-overflow-tooltip />
           <el-table-column prop="工序名称" label="工序名称" min-width="150" show-overflow-tooltip />
           <el-table-column prop="记录数" label="记录数" width="80" align="center" />
           <el-table-column prop="最高价" label="最高价" width="100" align="right">
@@ -86,12 +93,6 @@
       </div>
     </div>
 
-    <div class="el-card is-always-shadow mb-4 summary-card">
-      <div class="el-card__body summary-row">
-        <span>明细总条数: <b>{{ total }}</b></span>
-      </div>
-    </div>
-
     <div class="el-card is-always-shadow table-card" v-loading="loading" element-loading-text="加载中...">
       <div class="el-card__body">
         <el-table
@@ -104,7 +105,7 @@
           :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
         >
           <el-table-column type="index" label="序号" width="60" align="center" />
-          <el-table-column prop="部门" label="部门" min-width="120" show-overflow-tooltip />
+          <el-table-column prop="部门" label="车间" min-width="120" show-overflow-tooltip />
           <el-table-column prop="工序名称" label="工序名称" min-width="120" show-overflow-tooltip />
           <el-table-column prop="产品规格" label="产品规格" min-width="150" show-overflow-tooltip />
           <el-table-column prop="单位" label="单位" width="60" align="center" />
@@ -182,14 +183,16 @@ export default {
     }
   },
   created() {
+    console.log('[ProcessPriceStats] 组件已挂载')
     eventBus.$on('sidebar-Menus-Updated', (menus) => {
       this.sidebarMenus = menus
       this.generateBreadcrumb(this.$route.path)
     })
     if (this.sidebarMenus.length === 0) {
-      this.breadcrumbItems = ['John项目', '工序规格码单价明细与统计']
+      this.breadcrumbItems = ['报表页面', '单价', '工序规格码单价明细与统计']
     }
-    this.loadOptions()
+    this.loadDepartments()
+    this.loadProcessNames('')
     this.searchData()
   },
   computed: {
@@ -204,6 +207,14 @@ export default {
   watch: {
     $route(newVal) {
       this.generateBreadcrumb(newVal.path)
+    },
+    'filters.部门': {
+      handler(val) {
+        console.log('[ProcessPriceStats] filters.部门 changed:', val)
+        this.filters.工序名称 = ''
+        this.processOptions = []
+        this.loadProcessNames(val)
+      }
     }
   },
   methods: {
@@ -212,20 +223,25 @@ export default {
         const menus = this.sidebarMenus
         const findMenuName = (menus, targetPath) => {
           for (const menu of menus) {
-            if (menu.path === targetPath) return menu.name
+            if (menu.path === targetPath) return [menu.name]
             if (menu.children) {
               for (const child of menu.children) {
                 if (child.path === targetPath) return [menu.name, child.name]
+                if (child.children) {
+                  for (const grandchild of child.children) {
+                    if (grandchild.path === targetPath) return [menu.name, child.name, grandchild.name]
+                  }
+                }
               }
             }
           }
-          return path.split('/').pop()
+          return null
         }
         const paths = path.split('/').filter(p => p)
         const menuNames = findMenuName(menus, '/' + paths.join('/'))
-        this.breadcrumbItems = Array.isArray(menuNames) ? menuNames : [menuNames]
+        this.breadcrumbItems = menuNames || ['报表页面', '单价', '工序规格码单价明细与统计']
       } catch {
-        this.breadcrumbItems = ['John项目', '工序规格码单价明细与统计']
+        this.breadcrumbItems = ['报表页面', '单价', '工序规格码单价明细与统计']
       }
     },
     formatNumber(value) {
@@ -234,21 +250,31 @@ export default {
       }
       return Number(value).toLocaleString()
     },
-    async loadOptions() {
+    async loadDepartments() {
       try {
-        const [deptRes, procRes] = await Promise.all([
-          axios.get('/api/processPriceStats/departments'),
-          axios.get('/api/processPriceStats/processNames')
-        ])
-        if (deptRes.data?.status === 'success') {
-          this.departmentOptions = deptRes.data.data || []
+        const res = await axios.get('/api/processPriceStats/departments')
+        if (res.data?.status === 'success') {
+          this.departmentOptions = res.data.data || []
         }
-        if (procRes.data?.status === 'success') {
-          this.processOptions = procRes.data.data || []
+      } catch {}
+    },
+    async loadProcessNames(部门) {
+      try {
+        const params = {}
+        if (部门) params.部门 = 部门
+        const res = await axios.get('/api/processPriceStats/processNames', { params })
+        if (res.data?.status === 'success') {
+          this.processOptions = res.data.data || []
         }
-      } catch {
-        // ignore
+      } catch (e) {
+        console.error('loadProcessNames error:', e)
       }
+    },
+    on车间Change(val) {
+      console.log('on车间Change triggered, val:', val, 'filters.部门:', this.filters.部门)
+      this.filters.工序名称 = ''
+      this.processOptions = []
+      this.loadProcessNames(val || this.filters.部门)
     },
     handleStatsPageChange(page) {
       this.statsPage = page
@@ -329,6 +355,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   color: #303133;
+  gap: 10px;
 }
 .table-card {
   min-height: 100px;

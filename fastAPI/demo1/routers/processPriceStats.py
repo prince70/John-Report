@@ -158,14 +158,23 @@ async def get_departments():
         raise HTTPException(status_code=500, detail=f"获取部门列表失败: {exc}")
 
 @router.get("/processPriceStats/processNames", summary="获取工序名称下拉列表")
-@cache(expire=72000)
-async def get_process_names():
+async def get_process_names(部门: Optional[str] = Query(None)):
     try:
+        print(f"[processNames] 收到参数: 部门={repr(部门)}")
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT DISTINCT [工序名称] FROM [department2020].[dbo].[V_工序单价表] WHERE [工序名称] IS NOT NULL AND [工序名称] != '' ORDER BY [工序名称]")
+        sql = "SELECT DISTINCT [工序名称] FROM [department2020].[dbo].[V_工序单价表] WHERE [工序名称] IS NOT NULL AND [工序名称] != ''"
+        params = []
+        if 部门 and 部门.strip():
+            sql += " AND [部门] = ?"
+            params.append(部门.strip())
+        sql += " ORDER BY [工序名称]"
+        print(f"[processNames] SQL: {sql}, params: {params}")
+        cursor.execute(sql, params)
         names = [row[0] for row in cursor.fetchall()]
+        print(f"[processNames] 返回 {len(names)} 条")
         conn.close()
         return {"status": "success", "data": names}
     except Exception as exc:
+        import traceback; traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"获取工序名称列表失败: {exc}")
