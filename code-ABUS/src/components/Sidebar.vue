@@ -426,7 +426,7 @@ export default {
                   path: '/workshopRealTimeInventory'
                 },
                 {
-                  name: '成品减单历史记录',
+                  name: '成品库存及成品减单历史记录',
                   icon: require('../pages/photo/data.png'),
                   path: '/finishedProductOrderReductionHistory'
                 }
@@ -665,7 +665,7 @@ export default {
                   path: '/workshopRealTimeInventory'
                 },
                 {
-                  name: '成品减单历史记录',
+                  name: '成品库存及成品减单历史记录',
                   icon: require('../pages/photo/data.png'),
                   path: '/finishedProductOrderReductionHistory'
                 }

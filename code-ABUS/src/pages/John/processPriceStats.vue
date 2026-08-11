@@ -4,7 +4,7 @@
       <div class="el-card__body">
         <el-form @submit.native.prevent="searchData" label-width="100px">
           <el-row :gutter="20">
-            <el-col :span="8">
+            <el-col :span="6">
               <el-form-item label="车间">
                 <el-select
                   v-model="filters.部门"
@@ -21,7 +21,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="6">
               <el-form-item label="工序名称">
                 <el-select
                   v-model="filters.工序名称"
@@ -38,19 +38,28 @@
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <div class="stats-right-col">
+                <div class="stats-card stats-card--all">
+                  <span class="stats-card__title">所有车间</span>
+                  <span class="stats-card__item">工序：<b>{{ allStatsData.length }}</b></span>
+                  <span class="stats-card__item">单价：<b>{{ allTotal }}</b></span>
+                </div>
+              </div>
+            </el-col>
           </el-row>
-          <div class="form-actions">
-            <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
-            <el-button @click="resetFilters">重置</el-button>
+          <div class="stats-bottom-row">
+            <div class="stats-card stats-card--current">
+              <span class="stats-card__title">当前车间</span>
+              <span class="stats-card__item">工序：<b>{{ statsData.length }}</b></span>
+              <span class="stats-card__item">单价：<b>{{ total }}</b></span>
+            </div>
+            <div class="stats-buttons">
+              <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
+              <el-button @click="resetFilters">重置</el-button>
+            </div>
           </div>
         </el-form>
-      </div>
-    </div>
-
-    <div class="el-card is-always-shadow mb-4 summary-card">
-      <div class="el-card__body summary-row">
-        <span>工序个数: <b>{{ statsData.length }}</b>个</span>
-        <span style="margin-left:30px">单价个数: <b>{{ total }}</b>个</span>
       </div>
     </div>
 
@@ -176,7 +185,10 @@ export default {
       statsPageSize: 20,
       tableData: [],
       allData: [],
+      allStatsData: [],
+      allTotal: 0,
       loading: false,
+      currentPage: 1,
       currentPage: 1,
       pageSize: 50,
       total: 0
@@ -302,6 +314,10 @@ export default {
           this.statsData = response.data.data?.stats || []
           this.allData = response.data.data?.details || []
           this.total = this.allData.length
+          if (!this.filters.部门 && !this.filters.工序名称) {
+            this.allStatsData = this.statsData
+            this.allTotal = this.total
+          }
           this.updateTableData()
         } else {
           this.$message.error('数据获取失败')
@@ -339,23 +355,61 @@ export default {
 .mb-4 {
   margin-bottom: 16px;
 }
-.form-actions {
+.stats-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  height: 100%;
+  align-items: flex-end;
+}
+.stats-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+.stats-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 10px;
+  gap: 8px;
 }
-.stats-title {
+.stats-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  height: 32px;
+}
+.stats-card--current {
+  background: #ecf5ff;
+  border: 1px solid #b3d8ff;
+  margin-top: 10px;
+}
+.stats-card--all {
+  background: #f4f4f5;
+  border: 1px solid #dcdfe6;
+}
+.stats-card__title {
   font-size: 15px;
   font-weight: bold;
   color: #303133;
-  margin-bottom: 12px;
 }
-.summary-row {
-  display: flex;
-  justify-content: flex-end;
+.stats-card--current .stats-card__title {
+  color: #409eff;
+}
+.stats-card__item {
+  color: #606266;
+}
+.stats-card__item b {
+  font-size: 15px;
+  font-weight: bold;
   color: #303133;
-  gap: 10px;
+}
+.stats-card--current .stats-card__item b {
+  color: #409eff;
 }
 .table-card {
   min-height: 100px;
