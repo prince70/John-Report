@@ -140,6 +140,32 @@ async def get_stock(
 ):
     try:
         raw_data = get_stock_data(item_no, 产品名称, 系列, 产品规格)
-        return {"status": "success", "data": raw_data, "total_count": len(raw_data)}
+        total_inventory = sum(float(r.get("库存", 0) or 0) for r in raw_data)
+        return {"status": "success", "data": raw_data, "total_count": len(raw_data), "total_inventory": total_inventory}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
+
+@router.get("/finishedProductStock/stats", summary="成品库存按系列统计")
+async def get_stock_stats(
+    item_no: Optional[str] = Query(None),
+    产品名称: Optional[str] = Query(None),
+    系列: Optional[str] = Query(None),
+    产品规格: Optional[str] = Query(None),
+):
+    try:
+        raw_data = get_stock_data(item_no, 产品名称, 系列, 产品规格)
+        series_map = {}
+        for r in raw_data:
+            s = r.get("系列", "") or "未知"
+            qty = float(r.get("库存", 0) or 0)
+            if s not in series_map:
+                series_map[s] = 0
+            series_map[s] += qty
+        stats_data = [{"系列": k, "库存": v} for k, v in series_map.items() if v > 0]
+        def sort_key(item):
+            return (1, 0) if item["系列"] == "未知" else (0, -item["库存"])
+        stats_data.sort(key=sort_key)
+        total_inventory = sum(v for v in series_map.values())
+        return {"status": "success", "data": stats_data, "total_inventory": total_inventory}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
