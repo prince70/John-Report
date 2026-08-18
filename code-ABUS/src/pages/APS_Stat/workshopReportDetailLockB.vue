@@ -34,8 +34,9 @@
               </el-col>
             </el-row>
             <div class="form-actions">
-              <el-button type="primary" :loading="loading" @click="searchData">查询</el-button>
+              <el-button type="primary" :loading="loading" @click="currentPage = 1; searchData()">查询</el-button>
               <el-button @click="resetFilters">重置</el-button>
+              <el-button type="success" icon="el-icon-download" :loading="exporting" @click="exportData">导出</el-button>
             </div>
           </el-form>
         </div>
@@ -111,8 +112,8 @@ export default {
     return {
       breadcrumbItems: ['报工', '车间报工详情', '锁体B报工详情'],
       filters: { start: fmt(yesterday), end: fmt(today), 序列号: '', 姓名: '', 订单批号: '' },
-      tableData: [], allData: [], loading: false, hasSearched: false,
-      currentPage: 1, pageSize: 100, total: 0, sidebarMenus: []
+      tableData: [], loading: false, hasSearched: false,
+      currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [], exporting: false
     }
   },
   created() { eventBus.$on('sidebar-Menus-Updated', (m) => { this.sidebarMenus = m; this.generateBreadcrumb(this.$route.path) }) },
@@ -122,26 +123,42 @@ export default {
     formatNumber(v) { return (v === null || v === undefined || v === '') ? '-' : Number(v).toLocaleString() },
     async searchData() {
       if (!this.filters.start || !this.filters.end) { this.$message.warning('请选择时间范围'); return }
-      this.loading = true; this.currentPage = 1; this.hasSearched = true
+      this.loading = true; this.hasSearched = true
       try {
         const params = { start: this.filters.start, end: this.filters.end }
+        params.page = this.currentPage; params.page_size = this.pageSize
         if (this.filters.序列号) params.序列号 = this.filters.序列号.trim()
         if (this.filters.姓名) params.姓名 = this.filters.姓名.trim()
         if (this.filters.订单批号) params.订单批号 = this.filters.订单批号.trim()
         const res = await axios.get('/api/workshopReportDetail/LockB', { params })
-        if (res.data?.status === 'success') { this.allData = res.data.data || []; this.total = res.data.total_count || this.allData.length; this.updateTableData() }
+        if (res.data?.status === 'success') { this.tableData = res.data.data || []; this.total = res.data.total_count || 0 }
         else this.$message.error('数据获取失败')
       } catch { this.$message.error('数据加载失败') } finally { this.loading = false }
     },
-    updateTableData() { const s = (this.currentPage-1)*this.pageSize; this.tableData = this.allData.slice(s, s+this.pageSize) },
-    handlePageChange(p) { this.currentPage = p; this.updateTableData() },
-    handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.updateTableData() },
+    handlePageChange(p) { this.currentPage = p; this.searchData() },
+    handleSizeChange(s) { this.pageSize = s; this.currentPage = 1; this.searchData() },
     resetFilters() {
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1)
       const today = new Date()
       const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
       this.filters = { start: fmt(yesterday), end: fmt(today), 序列号: '', 姓名: '', 订单批号: '' }
-      this.hasSearched = false; this.tableData = []; this.allData = []; this.total = 0
+      this.hasSearched = true; this.tableData = []; this.total = 0; this.currentPage = 1
+      this.searchData()
+    },
+    async exportData() {
+      if (!this.filters.start || !this.filters.end) { this.$message.warning('请选择时间范围'); return }
+      this.exporting = true
+      try {
+        const params = { start: this.filters.start, end: this.filters.end }
+        if (this.filters.序列号) params.序列号 = this.filters.序列号.trim()
+        if (this.filters.姓名) params.姓名 = this.filters.姓名.trim()
+        if (this.filters.订单批号) params.订单批号 = this.filters.订单批号.trim()
+        const res = await axios.get('/api/workshopReportDetail/LockB/export', { params, responseType: 'blob' })
+        const cd = res.headers['content-disposition']; let fname = '锁体B报工详情.xlsx'; if (cd) { const m = cd.match(/filename\*=UTF-8''(.+)/); if (m) fname = decodeURIComponent(m[1]); else { const p = cd.split('filename=')[1]; if (p) fname = p.replace(/"/g, '') } }
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = fname; link.click(); URL.revokeObjectURL(link.href)
+        this.$message.success('导出成功')
+      } catch { this.$message.error('导出失败') } finally { this.exporting = false }
     }
   }
 }

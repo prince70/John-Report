@@ -184,7 +184,7 @@ def get_detail_from_db(订单批号, 工序=None):
         LEFT JOIN APS.APS_SUO.dbo.offline_process d
             ON b.OpExternalId = d.proccess
             AND a.ItemExternalId = d.item_no
-        WHERE ISNULL(a.EachFinishedQty, 0) >= 0
+        WHERE a.EachFinishedQty >= 0
           AND b.生产车间 LIKE '锁体C%'
           AND a.OrderNumber = ?
         """

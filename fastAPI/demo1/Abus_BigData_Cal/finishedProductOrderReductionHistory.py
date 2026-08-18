@@ -45,7 +45,19 @@ def get_reduction_data(规格型号=None, 订单批号=None):
         cursor.execute(sql, params)
         rows = cursor.fetchall()
         columns = [desc[0] for desc in cursor.description]
-        return [{col: (str(row[i]) if row[i] is not None else "") for i, col in enumerate(columns)} for row in rows]
+        result = []
+        for row in rows:
+            d = {col: (str(row[i]) if row[i] is not None else "") for i, col in enumerate(columns)}
+            try:
+                d["原订单数量"] = int(row[columns.index("原订单数量")]) if row[columns.index("原订单数量")] is not None else 0
+            except (ValueError, TypeError):
+                d["原订单数量"] = 0
+            try:
+                d["减单数量"] = int(row[columns.index("减单数量")]) if row[columns.index("减单数量")] is not None else 0
+            except (ValueError, TypeError):
+                d["减单数量"] = 0
+            result.append(d)
+        return result
     finally:
         if conn:
             try:
@@ -167,5 +179,49 @@ async def get_stock_stats(
         stats_data.sort(key=sort_key)
         total_inventory = sum(v for v in series_map.values())
         return {"status": "success", "data": stats_data, "total_inventory": total_inventory}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")
+
+
+def get_reduction_monthly_stats(规格型号=None, 订单批号=None):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        sql = """
+        SELECT FORMAT(修改时间, 'yyyy-MM') AS 月份, SUM(新值) AS 减单数量
+        FROM [APS_SUO].[dbo].[pandian_change_log] a
+        LEFT JOIN item b ON a.料品编码 = b.ExternalId
+        WHERE 修改时间 > '2026-08-03' AND 料品编码 LIKE '1%'
+        """
+        params = []
+        if 规格型号:
+            sql += " AND b.Description LIKE ?"
+            params.append(f"%{规格型号}%")
+        if 订单批号:
+            sql += " AND a.订单批号 LIKE ?"
+            params.append(f"%{订单批号}%")
+        sql += " GROUP BY FORMAT(修改时间, 'yyyy-MM') ORDER BY 月份 DESC"
+        cursor.execute(sql, params)
+        rows = cursor.fetchall()
+        result = [{"月份": str(row[0]), "减单数量": int(row[1]) if row[1] is not None else 0} for row in rows]
+        return result
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+
+
+@router.get("/finishedProductOrderReduction/stats", summary="成品减单按月统计")
+async def get_reduction_stats(
+    规格型号: Optional[str] = Query(None),
+    订单批号: Optional[str] = Query(None),
+):
+    try:
+        raw_data = get_reduction_monthly_stats(规格型号, 订单批号)
+        total_reduction = sum(r["减单数量"] for r in raw_data)
+        return {"status": "success", "data": raw_data, "total_reduction": total_reduction}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"服务器错误: {exc}")

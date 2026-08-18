@@ -62,6 +62,7 @@
               <el-radio-button label="reduction">成品减单</el-radio-button>
             </el-radio-group>
             <el-button v-if="activeTab === 'stock'" type="success" size="small" plain style="margin-left:12px" @click="openStatsDialog">查看统计</el-button>
+            <el-button v-if="activeTab === 'reduction'" type="success" size="small" plain style="margin-left:12px" @click="openReductionStatsDialog">查看统计</el-button>
           </div>
           <div class="summary-right">
             <span v-if="activeTab === 'stock'" class="inventory-info">当前页库存数: <b>{{ currentPageInventory }}</b>　全部库存数: <b>{{ totalInventory }}</b></span>
@@ -123,6 +124,18 @@
         <el-button @click="statsDialogVisible = false">关闭</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="按月计算减单数量" :visible.sync="reductionStatsDialogVisible" width="600px" top="8vh">
+      <div class="stats-dialog-total">所有月份减单合计：<b>{{ reductionTotalStats }}</b></div>
+      <el-table :data="reductionStatsData" border stripe max-height="500" style="width: 100%" :header-cell-style="{ background: '#eef1f6', color: '#606266' }">
+        <el-table-column type="index" label="序号" width="60" align="center" />
+        <el-table-column prop="月份" label="月份" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="减单数量" label="减单数量" min-width="150" align="right" />
+      </el-table>
+      <span slot="footer">
+        <el-button @click="reductionStatsDialogVisible = false">关闭</el-button>
+      </span>
+    </el-dialog>
   </Layout>
 </template>
 
@@ -144,7 +157,8 @@ export default {
       currentPage: 1, pageSize: 100, total: 0, sidebarMenus: [],
       stockOptions: { 产品名称: [], 系列: [], 产品规格: [] },
       totalInventory: 0, currentPageInventory: 0,
-      statsDialogVisible: false, statsData: [], statsTotalInventory: 0
+      statsDialogVisible: false, statsData: [], statsTotalInventory: 0,
+      reductionStatsDialogVisible: false, reductionStatsData: [], reductionTotalStats: 0
     }
   },
   created() {
@@ -228,6 +242,19 @@ export default {
           this.statsData = res.data.data || []
           this.statsTotalInventory = res.data.total_inventory || 0
           this.statsDialogVisible = true
+        }
+      } catch { this.$message.error('统计加载失败') }
+    },
+    async openReductionStatsDialog() {
+      try {
+        const params = {}
+        if (this.reductionFilters.规格型号) params.规格型号 = this.reductionFilters.规格型号.trim()
+        if (this.reductionFilters.订单批号) params.订单批号 = this.reductionFilters.订单批号.trim()
+        const res = await axios.get('/api/finishedProductOrderReduction/stats', { params })
+        if (res.data?.status === 'success') {
+          this.reductionStatsData = res.data.data || []
+          this.reductionTotalStats = res.data.total_reduction || 0
+          this.reductionStatsDialogVisible = true
         }
       } catch { this.$message.error('统计加载失败') }
     }
