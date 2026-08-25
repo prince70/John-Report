@@ -193,6 +193,11 @@ export default {
               name: '成本计算应用',
               icon: require('../pages/photo/data.png'),
               path: '/CostCalculation'
+            },
+            {
+              name: '文件查询',
+              icon: require('../pages/photo/inventory.png'),
+              path: '/file'
             }
           ]
         },
@@ -417,6 +422,11 @@ export default {
                       name: '打磨-打磨区报工详情',
                       icon: require('../pages/photo/data.png'),
                       path: '/workshopReportDetail/DamoDM'
+                    },
+                    {
+                      name: '基于派工单查订单和报工',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/JobOrder'
                     }
                   ]
                 },
@@ -656,6 +666,11 @@ export default {
                       name: '打磨-打磨区报工详情',
                       icon: require('../pages/photo/data.png'),
                       path: '/workshopReportDetail/DamoDM'
+                    },
+                    {
+                      name: '基于派工单查订单和报工',
+                      icon: require('../pages/photo/data.png'),
+                      path: '/workshopReportDetail/JobOrder'
                     }
                   ]
                 },

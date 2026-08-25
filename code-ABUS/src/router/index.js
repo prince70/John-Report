@@ -48,8 +48,10 @@ import WorkshopReportDetailMaterial from '../pages/APS_Stat/workshopReportDetail
 import WorkshopReportDetailZhuangqian from '../pages/APS_Stat/workshopReportDetailZhuangqian.vue';
 import WorkshopReportDetailDamo from '../pages/APS_Stat/workshopReportDetailDamo.vue';
 import WorkshopReportDetailDamoDM from '../pages/APS_Stat/workshopReportDetailDamoDM.vue';
+import WorkshopReportDetailJobOrder from '../pages/APS_Stat/workshopReportDetailJobOrder.vue';
 import WorkshopRealTimeInventory from '../pages/APS_Stat/workshopRealTimeInventory.vue';
 import FinishedProductOrderReductionHistory from '../pages/APS_Stat/finishedProductOrderReductionHistory.vue';
+import file from '../pages/John/file.vue';
 
 Vue.use(VueRouter);
 
@@ -346,6 +348,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/workshopReportDetail/JobOrder',
+    name: 'WorkshopReportDetailJobOrder',
+    component: WorkshopReportDetailJobOrder,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/workshopRealTimeInventory',
     name: 'WorkshopRealTimeInventory',
     component: WorkshopRealTimeInventory,
@@ -355,6 +363,12 @@ const routes = [
     path: '/finishedProductOrderReductionHistory',
     name: 'FinishedProductOrderReductionHistory',
     component: FinishedProductOrderReductionHistory,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/file',
+    name: 'file',
+    component: file,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由

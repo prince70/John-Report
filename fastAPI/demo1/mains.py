@@ -54,6 +54,8 @@ from Abus_BigData_Cal.workshopReportDetailPack import router as workshopReportDe
 from Abus_BigData_Cal.workshopReportDetailLock import router as workshopReportDetailLock_router
 from Abus_BigData_Cal.workshopRealTimeInventory import router as workshopRealTimeInventory_router
 from Abus_BigData_Cal.finishedProductOrderReductionHistory import router as finishedProductOrderReductionHistory_router
+from Abus_BigData_Cal.workorderQuery import router as workorderQuery_router
+from Abus_BigData_Cal import file_api, category, miniproduct, systemproject, video
 app = FastAPI()
 
 # 初始化缓存 使用内存缓存而不是redis缓存
@@ -122,6 +124,12 @@ app.include_router(workshopReportDetailPack_router)
 app.include_router(workshopReportDetailLock_router)
 app.include_router(workshopRealTimeInventory_router)
 app.include_router(finishedProductOrderReductionHistory_router)
+app.include_router(workorderQuery_router)
+app.include_router(file_api.router)
+app.include_router(category.router)
+app.include_router(miniproduct.router)
+app.include_router(systemproject.router)
+app.include_router(video.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8092", "http://127.0.0.1:8092", "http://report.abushardware.com", "http://192.168.10.118:8092"], 
