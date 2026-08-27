@@ -439,6 +439,11 @@ export default {
                   name: '成品库存及成品减单历史记录',
                   icon: require('../pages/photo/data.png'),
                   path: '/finishedProductOrderReductionHistory'
+                },
+                {
+                  name: '装嵌车间铝门锁区实时库存',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/report/attireInventory'
                 }
               ]
             }
@@ -683,6 +688,11 @@ export default {
                   name: '成品库存及成品减单历史记录',
                   icon: require('../pages/photo/data.png'),
                   path: '/finishedProductOrderReductionHistory'
+                },
+                {
+                  name: '装嵌车间铝门锁区实时库存',
+                  icon: require('../pages/photo/data.png'),
+                  path: '/report/attireInventory'
                 }
               ]
             }

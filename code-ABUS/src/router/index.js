@@ -52,6 +52,7 @@ import WorkshopReportDetailJobOrder from '../pages/APS_Stat/workshopReportDetail
 import WorkshopRealTimeInventory from '../pages/APS_Stat/workshopRealTimeInventory.vue';
 import FinishedProductOrderReductionHistory from '../pages/APS_Stat/finishedProductOrderReductionHistory.vue';
 import file from '../pages/John/file.vue';
+import AttireInventory from '../pages/John/attireInventory.vue';
 
 Vue.use(VueRouter);
 
@@ -369,6 +370,12 @@ const routes = [
     path: '/file',
     name: 'file',
     component: file,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/report/attireInventory',
+    name: 'AttireInventory',
+    component: AttireInventory,
     meta: { requiresAuth: true }
   },
   // 添加通配符路由，捕获所有未定义的路由
