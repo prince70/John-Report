@@ -1,0 +1,38 @@
+# Python 虚拟环境
+fastAPI/venv/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# 环境变量
+.env
+
+# 含明文密码的本地配置
+report-db.local.ps1
+
+# 临时导出脚本
+export_db.py
+backups/*.py
+
+# 前端依赖与构建产物
+node_modules/
+dist/
+*.rar
+*.zip
+
+# 运行时日志
+logs/
+*.log
+
+# AI / IDE
+.claude/
+.vscode/
+.idea/
+
+# 数据库与本地数据
+*.db
+
+# 系统文件
+Thumbs.db
+.DS_Store

@@ -1,0 +1,41 @@
+{
+  "name": "codefun",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@vue-office/docx": "^1.6.3",
+    "@vue-office/excel": "^1.7.14",
+    "@vue-office/pdf": "^2.0.10",
+    "@vue/composition-api": "^1.7.2",
+    "axios": "^1.8.3",
+    "axios-retry": "^4.5.0",
+    "core-js": "^3.8.1",
+    "dayjs": "^1.11.13",
+    "echarts": "^5.6.0",
+    "element-ui": "^2.15.14",
+    "hanzi-convert": "^1.0.1",
+    "lodash": "^4.17.21",
+    "opencc-js": "^1.0.5",
+    "pptx-preview": "^1.0.6",
+    "pptxjs": "^0.0.0",
+    "vue": "2.6.14",
+    "vue-demi": "^0.14.10",
+    "vue-router": "^3.4.9",
+    "vuex": "^3.6.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.9",
+    "@vue/cli-plugin-router": "^4.5.9",
+    "@vue/cli-service": "^4.5.19",
+    "less": "^4.1.1",
+    "less-loader": "^7.3.0",
+    "sass": "^1.37.5",
+    "sass-loader": "^10.2.0",
+    "vue-template-compiler": "2.6.14"
+  }
+}

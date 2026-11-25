@@ -1,0 +1,194 @@
+import sys
+import os
+
+# 添加当前目录到Python路径
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from Abus_BigData_Cal.AssemblyEarlyList import router as AssemblyEarlyList
+from routers.login import router as login_router
+from routers.personal import router as personal_router
+from routers.cost_calculation import router as cost_calculation_router
+from routers.apsRequirements import router as apsRequirements_router
+from routers.team import router as team_router
+from routers.gongxu_sw import router as report_router
+from routers.gongxu import router as report_sw_router
+from routers.quanliucheng import router as report_temp_router
+from routers.cisa_inventory import router as cisa_inventory_router
+from routers.product_rules import router as product_rules_router
+from routers.processPriceStats import router as processPriceStats_router
+from HR.people import router as people_router
+from Abus_BigData_Cal import home_dashboard
+from Abus_BigData_Cal import FinishedQty
+from Abus_BigData_Cal.AssemblyFuture8Weeks import router as AssemblyFuture8Weeks
+from Warning.AssemblyEarly import router as AssemblyEarly
+from All_Process_Cal import allProcessWorkReport
+from Abus_BigData_Cal.lockBodyProcessStats import router as lockBodyProcessStats_router
+from Abus_BigData_Cal.lackMaterial import router as lackMaterial_router
+from Abus_BigData_Cal.outsourceLackMaterial import router as outsourceLackMaterial_router
+from Abus_BigData_Cal.fullProcessInventoryCNC import router as fullProcessInventoryCNC_router
+from Abus_BigData_Cal.fullProcessInventoryDZS import router as fullProcessInventoryDZS_router
+from Abus_BigData_Cal.fullProcessInventoryKEY import router as fullProcessInventoryKEY_router
+from Abus_BigData_Cal.fullProcessInventorySTA import router as fullProcessInventorySTA_router
+from Abus_BigData_Cal.fullProcessInventorySTB import router as fullProcessInventorySTB_router
+from Abus_BigData_Cal.fullProcessInventorySTC import router as fullProcessInventorySTC_router
+from Abus_BigData_Cal.fullProcessInventoryKL import router as fullProcessInventoryKL_router
+from Abus_BigData_Cal.fullProcessInventorySL import router as fullProcessInventorySL_router
+from Abus_BigData_Cal.fullProcessInventorySTD import router as fullProcessInventorySTD_router
+from Abus_BigData_Cal.fullProcessInventorySX import router as fullProcessInventorySX_router
+from Abus_BigData_Cal.fullProcessInventoryZQ_DZSQ import router as fullProcessInventoryZQ_DZSQ_router
+from Abus_BigData_Cal.fullProcessInventoryZQ_GNSQ import router as fullProcessInventoryZQ_GNSQ_router
+from Abus_BigData_Cal.fullProcessInventoryZQ_LMSQ import router as fullProcessInventoryZQ_LMSQ_router
+from Abus_BigData_Cal.fullProcessInventoryDM_ZPQ import router as fullProcessInventoryDM_ZPQ_router
+from Abus_BigData_Cal.overStockQuantity import router as overStockQuantity_router
+from Abus_BigData_Cal.offlineProcess import router as offlineProcess_router
+from Abus_BigData_Cal.lockCWorkProgress import router as lockCWorkProgress_router
+from Abus_BigData_Cal.lockBodyOverage import router as lockBodyOverage_router
+from Abus_BigData_Cal.workshopReportDetail import router as workshopReportDetail_router
+from Abus_BigData_Cal.workshopReportDetailPack import router as workshopReportDetailPack_router
+from Abus_BigData_Cal.workshopReportDetailLock import router as workshopReportDetailLock_router
+from Abus_BigData_Cal.workshopRealTimeInventory import router as workshopRealTimeInventory_router
+from Abus_BigData_Cal.finishedProductOrderReductionHistory import router as finishedProductOrderReductionHistory_router
+from Abus_BigData_Cal.workorderQuery import router as workorderQuery_router
+from Abus_BigData_Cal import file_api, category, miniproduct, systemproject, video
+from routers.attire_inventory import router as attire_inventory_router
+app = FastAPI()
+
+# 生产环境：前端请求统一带 /api 前缀，这里剥掉后交给后端路由（等价于开发代理的 pathRewrite）
+from starlette.middleware.base import BaseHTTPMiddleware
+
+
+class ApiPrefixStripMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if request.scope["path"].startswith("/api/"):
+            request.scope["path"] = request.scope["path"][len("/api"):]
+        return await call_next(request)
+
+
+app.add_middleware(ApiPrefixStripMiddleware)
+
+# 初始化缓存 使用内存缓存而不是redis缓存
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+
+# 应用关闭时的清理任务
+@app.on_event("shutdown")
+async def shutdown():
+    pass
+# Serve static files (uploaded files etc.)
+project_root = os.path.dirname(__file__)
+static_dir = os.path.join(project_root, "static")
+os.makedirs(static_dir, exist_ok=True)
+
+# 前端构建产物目录 (John-Report\code-ABUS\dist)
+frontend_dist = os.path.normpath(os.path.join(project_root, "..", "..", "code-ABUS", "dist"))
+
+# 新增：将 /static/uploads 挂载到 D:\\uploads
+uploads_abs_dir = r"D:\\uploads"
+os.makedirs(uploads_abs_dir, exist_ok=True)
+app.mount("/static/uploads", StaticFiles(directory=uploads_abs_dir), name="uploads")
+
+# 原有静态目录挂载
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+app.include_router(login_router)
+app.include_router(personal_router)
+app.include_router(cost_calculation_router)
+app.include_router(apsRequirements_router)
+app.include_router(team_router, prefix="/team")
+app.include_router(report_router)
+app.include_router(report_sw_router, prefix="/report_sw")
+app.include_router(report_temp_router, prefix="/report_temp")
+app.include_router(cisa_inventory_router, prefix="/cisa_inventory")
+app.include_router(product_rules_router)
+app.include_router(processPriceStats_router)
+app.include_router(people_router)
+app.include_router(home_dashboard.router)
+app.include_router(FinishedQty.router)
+app.include_router(AssemblyEarly)
+app.include_router(AssemblyEarlyList)
+app.include_router(AssemblyFuture8Weeks)
+app.include_router(allProcessWorkReport.router)
+app.include_router(lockBodyProcessStats_router)
+app.include_router(lackMaterial_router)
+app.include_router(outsourceLackMaterial_router)
+app.include_router(fullProcessInventoryCNC_router)
+app.include_router(fullProcessInventoryDZS_router)
+app.include_router(fullProcessInventoryKEY_router)
+app.include_router(fullProcessInventorySTA_router)
+app.include_router(fullProcessInventorySTB_router)
+app.include_router(fullProcessInventorySTC_router)
+app.include_router(fullProcessInventoryKL_router)
+app.include_router(fullProcessInventorySL_router)
+app.include_router(fullProcessInventorySTD_router)
+app.include_router(fullProcessInventorySX_router)
+app.include_router(fullProcessInventoryZQ_DZSQ_router)
+app.include_router(fullProcessInventoryZQ_GNSQ_router)
+app.include_router(fullProcessInventoryZQ_LMSQ_router)
+app.include_router(fullProcessInventoryDM_ZPQ_router)
+app.include_router(overStockQuantity_router)
+app.include_router(offlineProcess_router)
+app.include_router(lockCWorkProgress_router)
+app.include_router(lockBodyOverage_router)
+app.include_router(workshopReportDetail_router)
+app.include_router(workshopReportDetailPack_router)
+app.include_router(workshopReportDetailLock_router)
+app.include_router(workshopRealTimeInventory_router)
+app.include_router(finishedProductOrderReductionHistory_router)
+app.include_router(workorderQuery_router)
+app.include_router(file_api.router)
+app.include_router(category.router)
+app.include_router(miniproduct.router)
+app.include_router(systemproject.router)
+app.include_router(video.router)
+app.include_router(attire_inventory_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8092", "http://127.0.0.1:8092", "http://report.abushardware.com", "http://192.168.10.118:8092"], 
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
+
+@app.get("/")
+async def root():
+    print('运行')
+    if os.path.isfile(os.path.join(frontend_dist, "index.html")):
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+    return {"status": "API is running!"}
+
+
+@app.post("/cache/clear")
+async def clear_all_cache():
+    try:
+        await FastAPICache.clear()
+        return {"status": "success", "message": "全局缓存已清除"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"清除全局缓存失败: {str(e)}")
+
+# ===================== 前端静态文件托管（生产环境，Vue history 模式回退） =====================
+# 注意：必须放在所有 API 路由/挂载之后注册，保证 API 路由优先匹配
+if os.path.isdir(frontend_dist):
+    if os.path.isdir(os.path.join(frontend_dist, "assets")):
+        app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="frontend-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str):
+        candidate = os.path.realpath(os.path.join(frontend_dist, full_path))
+        dist_real = os.path.realpath(frontend_dist)
+        if full_path and candidate.startswith(dist_real) and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+else:
+    print(f"[警告] 未找到前端 dist 目录: {frontend_dist}，请先在 code-ABUS 下执行 npm run build")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app='mains:app', host="0.0.0.0", port=8091)
